@@ -13,7 +13,5 @@ pub struct User {
     pub email_paypal: String,
     pub tel_wero: String,
     pub profil_pict_ref: String,
-    pub created_at: chrono::NaiveDateTime,
-    pub updated_at: chrono::NaiveDateTime,
     pub password: String,
 }
