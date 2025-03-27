@@ -10,7 +10,5 @@ CREATE TABLE users
     email_paypal    VARCHAR   NOT NULL,
     tel_wero        VARCHAR   NOT NULL,
     profil_pict_ref VARCHAR   NOT NULL,
-    created_at      TIMESTAMP NOT NULL,
-    updated_at      TIMESTAMP NOT NULL,
     password        VARCHAR   NOT NULL
 );
