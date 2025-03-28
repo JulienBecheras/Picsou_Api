@@ -1,0 +1,1 @@
+docker-compose -p projet_picsou_api  up -d
