@@ -2,7 +2,7 @@
 
 #[get("/")]
 fn index() -> &'static str {
-    "Bienvenu sur le projet PICSOU !"
+    "Bienvenu sur le projet PICSOU !!"
 }
 
 #[launch]
