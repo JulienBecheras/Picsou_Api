@@ -14,9 +14,10 @@ jobs:
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
           username: secrets.SSH_USER
-          password: ${{ secrets.SSH_PASSWORD }}
-          port: 22
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
             cd ~/projet_picsou_api/
             git pull origin main
