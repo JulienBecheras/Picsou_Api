@@ -13,7 +13,7 @@ jobs:
       - name: Update project
         uses: appleboy/ssh-action@v1.2.2
         with:
-          timeout: 300
+          timeout: 2m
           host: ${{ secrets.SSH_HOST }}
           port: ${{ secrets.SSH_PORT }}
           username: ${{ secrets.SSH_USER }}
@@ -25,7 +25,7 @@ jobs:
       - name: Stop current deployment
         uses: appleboy/ssh-action@v1.2.2
         with:
-          timeout: 500
+          timeout: 2m
           host: ${{ secrets.SSH_HOST }}
           port: ${{ secrets.SSH_PORT }}
           username: ${{ secrets.SSH_USER }}
@@ -37,7 +37,7 @@ jobs:
       - name: Build the updated project
         uses: appleboy/ssh-action@v1.2.2
         with:
-          timeout: 900
+          timeout: 10m
           host: ${{ secrets.SSH_HOST }}
           port: ${{ secrets.SSH_PORT }}
           username: ${{ secrets.SSH_USER }}
