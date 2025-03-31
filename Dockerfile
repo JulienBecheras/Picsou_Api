@@ -15,9 +15,9 @@ RUN cargo install diesel_cli --no-default-features --features postgres
 # Compiler le projet
 RUN cargo build --release
 
+# Créer un fichier d'entrée pour le conteneur
+RUN chmod +x entrypoint.sh
+CMD ["./entrypoint.sh"]
+
 # Exposer le port (ajuste le port selon ton API)
 EXPOSE 8000
-
-# Démarrer l'application
-# CMD ["cargo", "run", "--release"]
-# CMD diesel migration run && ./target/release/projet_picsou_api
