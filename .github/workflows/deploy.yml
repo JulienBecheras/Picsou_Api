@@ -10,9 +10,10 @@ jobs:
     name: deploy
     runs-on: ubuntu-latest
     steps:
-      - name: connect to raspberry pi, pull last version and execute docker compose
+      - name: Update project
         uses: appleboy/ssh-action@v1.2.2
         with:
+          timeout: 300
           host: ${{ secrets.SSH_HOST }}
           port: ${{ secrets.SSH_PORT }}
           username: ${{ secrets.SSH_USER }}
@@ -21,5 +22,27 @@ jobs:
           script: |
             cd ~/projet_picsou_api/
             git pull origin main
+      - name: Stop current deployment
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          timeout: 500
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          script: |
+            cd ~/projet_picsou_api/
             sudo docker-compose down
+      - name: Build the updated project
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          timeout: 900
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          script: |
+            cd ~/projet_picsou_api/
             sudo docker-compose up --build -d
