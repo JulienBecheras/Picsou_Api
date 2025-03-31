@@ -22,22 +22,10 @@ jobs:
           script: |
             cd ~/projet_picsou_api/
             git pull origin main
-      - name: Stop current deployment
-        uses: appleboy/ssh-action@v1.2.2
-        with:
-          timeout: 2m
-          host: ${{ secrets.SSH_HOST }}
-          port: ${{ secrets.SSH_PORT }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          script: |
-            cd ~/projet_picsou_api/
-            sudo docker-compose down
       - name: Build the updated project
         uses: appleboy/ssh-action@v1.2.2
         with:
-          timeout: 20m
+          timeout: 10m
           host: ${{ secrets.SSH_HOST }}
           port: ${{ secrets.SSH_PORT }}
           username: ${{ secrets.SSH_USER }}
@@ -45,4 +33,6 @@ jobs:
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
             cd ~/projet_picsou_api/
-            sudo docker-compose up --build -d
+            docker-compose pull
+            docker-compose up -d --no-deps api
+
