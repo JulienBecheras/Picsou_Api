@@ -37,7 +37,7 @@ jobs:
       - name: Build the updated project
         uses: appleboy/ssh-action@v1.2.2
         with:
-          timeout: 10m
+          timeout: 20m
           host: ${{ secrets.SSH_HOST }}
           port: ${{ secrets.SSH_PORT }}
           username: ${{ secrets.SSH_USER }}
