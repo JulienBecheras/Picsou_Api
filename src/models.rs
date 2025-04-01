@@ -14,4 +14,17 @@ pub struct User {
     pub tel_wero: String,
     pub profil_pict_ref: String,
     pub password: String,
+    pub created_at: chrono::NaiveDateTime,
+    pub updated_at: chrono::NaiveDateTime,
+}
+
+#[derive(Queryable, Selectable)]
+#[diesel(table_name = crate::schema::friends)]
+#[diesel(check_for_backend(diesel::pg::Pg))]
+pub struct Friend {
+    pub id: i32,
+    pub user1_id: i32,
+    pub user2_id: i32,
+    pub created_at: chrono::NaiveDateTime,
+    pub updated_at: chrono::NaiveDateTime,
 }
