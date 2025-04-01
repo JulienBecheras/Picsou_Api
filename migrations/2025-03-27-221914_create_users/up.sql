@@ -10,8 +10,8 @@ CREATE TABLE users
     tel_wero        VARCHAR   NOT NULL,
     profil_pict_ref VARCHAR   NOT NULL,
     password        VARCHAR   NOT NULL,
-    created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
 CREATE OR REPLACE FUNCTION update_timestamp_user()

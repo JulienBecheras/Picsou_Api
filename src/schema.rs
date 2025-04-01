@@ -5,8 +5,8 @@ diesel::table! {
         id -> Int4,
         user1_id -> Int4,
         user2_id -> Int4,
-        created_at -> Nullable<Timestamp>,
-        updated_at -> Nullable<Timestamp>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
     }
 }
 
@@ -22,8 +22,8 @@ diesel::table! {
         tel_wero -> Varchar,
         profil_pict_ref -> Varchar,
         password -> Varchar,
-        created_at -> Nullable<Timestamp>,
-        updated_at -> Nullable<Timestamp>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
     }
 }
 
