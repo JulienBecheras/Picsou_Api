@@ -14,5 +14,5 @@ fn index() -> &'static str {
 fn rocket() -> _ {
     rocket::build()
         .mount("/", routes![index])
-        .mount("/login", routes![routes::auth::login])
+        .mount("/auth", routes![routes::auth::login])
 }
