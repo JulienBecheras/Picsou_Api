@@ -2,6 +2,8 @@ mod models;
 mod repositories;
 mod routes;
 mod schema;
+mod services;
+mod utils;
 
 #[macro_use] extern crate rocket;
 
