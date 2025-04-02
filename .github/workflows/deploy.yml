@@ -46,6 +46,17 @@ jobs:
           script: |
             cd ~/projet_picsou_api/
             sudo docker-compose up -d --no-deps api
+      - name: Delete the unused images
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          timeout: 5m
+          host: ${{ secrets.SSH_HOST }}
+          port: ${{ secrets.SSH_PORT }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          script: |
+            sudo docker image prune -a
 
 
 
