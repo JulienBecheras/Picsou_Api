@@ -6,11 +6,12 @@ RUN apt-get update && apt-get install -y git libpq-dev
 
 WORKDIR /app
 
+# Récuperer les dépendances
+COPY Cargo.toml Cargo.lock ./
+RUN cargo install diesel_cli --no-default-features --features postgres
+
 # Récuperation du projet
 COPY . .
-
-# Récuperer les dépendances
-RUN cargo install diesel_cli --no-default-features --features postgres
 
 # Compiler le projet
 RUN cargo build --release
