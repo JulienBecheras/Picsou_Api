@@ -1,16 +1,16 @@
-
+use chrono::NaiveDateTime;
 use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl};
 use rocket::serde::json::Json;
 use rocket::http::Method::Post;
 use rocket::http::Status;
 use rocket::Response;
 use rocket::response::status::Unauthorized;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use projet_picsou_api::establish_connection;
-use crate::models::user::User;
+use crate::models::user::{InsertableUser, User};
+use diesel::prelude::*;
 use crate::schema::users::dsl::users;
 use crate::schema::users::email;
-use diesel::prelude::*;
 
 #[derive(Deserialize)]
 pub struct LoginRequest {
@@ -34,7 +34,7 @@ pub fn login(login_request: Json<LoginRequest>) -> Result<String, Status> {
     }
     let user = user_list.first().unwrap();
 
-    return if crate::utils::hash::verify_password(&user.password, &login_request.password) {
+    return if crate::utils::hash::verify_password(&login_request.password, &user.password) {
         //If the password is correct, create a JWT token
         let token = crate::utils::jwt::create_jwt(&user.email);
         Ok(token)
@@ -42,7 +42,51 @@ pub fn login(login_request: Json<LoginRequest>) -> Result<String, Status> {
         //If the password is incorrect, return an error
         Err(Status::Unauthorized)
     }
+}
 
+#[derive(Deserialize)]
+pub struct RegisterRequest {
+    pub first_name: String,
+    pub last_name: String,
+    pub email: String,
+    pub tel: String,
+    pub rib: String,
+    pub email_paypal: String,
+    pub tel_wero: String,
+    pub profil_pict_ref: String,
+    pub password: String,
+}
+#[derive(Serialize)]
+struct RegisterResponse {
+    pub new_user: User,
+    pub token: String,
+}
 
-
+#[post("/register", format = "application/json", data = "<register_request>")]
+pub fn register(register_request: Json<RegisterRequest>) -> Result<Json<RegisterResponse>, Status> {
+    let conn = &mut establish_connection();
+    let hashed_password = crate::utils::hash::hash_password(&register_request.password);
+    if hashed_password.is_err() {
+        return Err(Status::InternalServerError)
+    }
+    let insertable_user = InsertableUser {
+        first_name: register_request.first_name.clone(),
+        last_name: register_request.last_name.clone(),
+        email: register_request.email.clone(),
+        tel: register_request.tel.clone(),
+        rib: register_request.rib.clone(),
+        email_paypal: register_request.email_paypal.clone(),
+        tel_wero: register_request.tel_wero.clone(),
+        profil_pict_ref: register_request.profil_pict_ref.clone(),
+        password: hashed_password.unwrap(),
+    };
+    let result = diesel::insert_into(users).values(&insertable_user).get_result::<User>(conn);
+    if result.is_err() {
+        return Err(Status::InternalServerError)
+    }
+    let response = RegisterResponse {
+        new_user: result.unwrap(),
+        token: crate::utils::jwt::create_jwt(&insertable_user.email),
+    };
+    Ok(Json(response))
 }

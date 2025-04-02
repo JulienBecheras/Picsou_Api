@@ -22,8 +22,8 @@ diesel::table! {
         tel_wero -> Varchar,
         profil_pict_ref -> Varchar,
         password -> Varchar,
-        created_at -> Timestamp,
-        updated_at -> Timestamp,
+        created_at -> Nullable<Timestamp>,
+        updated_at -> Nullable<Timestamp>,
     }
 }
 
