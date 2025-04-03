@@ -16,7 +16,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER set_timestamp
+CREATE TRIGGER set_timestamp_friends
     BEFORE UPDATE ON FRIENDS
     FOR EACH ROW
 EXECUTE FUNCTION update_timestamp_friend();
