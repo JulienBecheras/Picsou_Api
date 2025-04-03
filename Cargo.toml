@@ -4,7 +4,14 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-rocket = "0.5.1"
-diesel = { version = "2.2.0", features = ["postgres"] }
+rocket = { version = "0.5.1", features = ["json"] }
+diesel = { version = "2.2.0", features = ["postgres", "chrono"] }
+pq-sys = { version = "0.7.1", features = ["bundled"] }
+openssl = { version = "0.10", features = ["vendored"] }
+openssl-sys = { version = "0.9.100", features = ["vendored"] }
 dotenvy = "0.15"
-chrono = "0.4.40"
+chrono = { version = "0.4.40", features = ["serde"] }
+serde = { version = "1.0", features = ["derive"] }
+jsonwebtoken = "9.2"
+argon2 = "0.5"
+rand_core = { version = "0.9.3", features = ["std"] }

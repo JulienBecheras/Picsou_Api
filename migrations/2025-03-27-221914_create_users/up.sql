@@ -1,4 +1,3 @@
--- Your SQL goes here
 CREATE TABLE users
 (
     id              SERIAL PRIMARY KEY,
@@ -10,5 +9,20 @@ CREATE TABLE users
     email_paypal    VARCHAR   NOT NULL,
     tel_wero        VARCHAR   NOT NULL,
     profil_pict_ref VARCHAR   NOT NULL,
-    password        VARCHAR   NOT NULL
+    password        VARCHAR   NOT NULL,
+    created_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at      TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE OR REPLACE FUNCTION update_timestamp_user()
+    RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = NOW();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER set_timestamp_users
+    BEFORE UPDATE ON USERS
+    FOR EACH ROW
+EXECUTE FUNCTION update_timestamp_user();
