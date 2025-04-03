@@ -11,15 +11,21 @@ use crate::models::user::{InsertableUser, User};
 use diesel::prelude::*;
 use crate::schema::users::dsl::users;
 use crate::schema::users::email;
+use crate::auth::AuthenticatedUser;
 
 #[derive(Deserialize)]
 pub struct LoginRequest {
     pub email: String,
     pub password: String,
 }
+#[derive(Serialize)]
+struct LoginResponse {
+    pub user: User,
+    pub token: String,
+}
 
 #[post("/login", format = "application/json", data = "<login_request>")]
-pub fn login(login_request: Json<LoginRequest>) -> Result<String, Status> {
+pub fn login(login_request: Json<LoginRequest>) -> Result<Json<LoginResponse>, Status> {
     let conn = &mut establish_connection();
     //Getting the user from the database
     let user_result : Result<Vec<User>, diesel::result::Error> = users.filter(email.eq(&login_request.email)).limit(1).load(conn);
@@ -36,8 +42,12 @@ pub fn login(login_request: Json<LoginRequest>) -> Result<String, Status> {
 
     return if crate::utils::hash::verify_password(&login_request.password, &user.password) {
         //If the password is correct, create a JWT token
-        let token = crate::utils::jwt::create_jwt(&user.email);
-        Ok(token)
+        let user_id = user.id;
+        let response = LoginResponse {
+            user: user.clone(),
+            token: crate::utils::jwt::create_jwt(&user_id.to_string()),
+        };
+        Ok(Json(response))
     } else {
         //If the password is incorrect, return an error
         Err(Status::Unauthorized)
@@ -84,9 +94,18 @@ pub fn register(register_request: Json<RegisterRequest>) -> Result<Json<Register
     if result.is_err() {
         return Err(Status::InternalServerError)
     }
+    let result = result.unwrap();
+    let user_id = result.id;
     let response = RegisterResponse {
-        new_user: result.unwrap(),
-        token: crate::utils::jwt::create_jwt(&insertable_user.email),
+        new_user: result,
+        token: crate::utils::jwt::create_jwt(&user_id.to_string()),
     };
     Ok(Json(response))
 }
+
+
+#[get("/validate")]
+pub fn validate(user: AuthenticatedUser) -> &'static str {
+    "Your token is valid"
+}
+
