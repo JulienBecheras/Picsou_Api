@@ -13,9 +13,6 @@ RUN cargo install diesel_cli --no-default-features --features postgres
 # Récuperation du projet
 COPY . .
 
-# Compiler le projet
-RUN cargo build --release
-
 # Créer un fichier d'entrée pour le conteneur
 RUN chmod +x entrypoint.sh
 CMD ["./entrypoint.sh"]
