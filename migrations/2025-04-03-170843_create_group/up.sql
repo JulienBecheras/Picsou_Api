@@ -1,0 +1,12 @@
+CREATE TABLE groups (
+     id SERIAL PRIMARY KEY,
+     name VARCHAR NOT NULL,
+     pict_ref INT NOT NULL,
+     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+CREATE TRIGGER set_timestamp_groups
+    BEFORE UPDATE ON groups
+    FOR EACH ROW
+EXECUTE FUNCTION update_timestamp();

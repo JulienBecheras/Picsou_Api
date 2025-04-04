@@ -1,6 +1,5 @@
 use diesel::prelude::*;
 use chrono::NaiveDateTime;
-use diesel::dsl::Nullable;
 use rocket::serde::Deserialize;
 use serde::Serialize;
 
@@ -23,7 +22,7 @@ pub struct User {
 }
 
 // Struct pour les INSERTS sans les champs auto-générés
-#[derive(Insertable, Deserialize)]
+#[derive(Insertable, Deserialize, Clone)]
 #[diesel(table_name = crate::schema::users)]
 pub struct InsertableUser {
     pub first_name: String,
