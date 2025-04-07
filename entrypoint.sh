@@ -1,6 +1,9 @@
 #!/bin/sh
 set -e
 
+echo "Attente de la base de données..."
+./wait-for-it.sh db:5432 --timeout=30 --strict -- echo "La base de données est prête !"
+
 echo "preparation de diesel..."
 diesel setup
 

@@ -14,6 +14,7 @@ RUN cargo install diesel_cli --no-default-features --features postgres
 COPY . .
 
 # Créer un fichier d'entrée pour le conteneur
+RUN chmod +x wait-for-it.sh
 RUN chmod +x entrypoint.sh
 CMD ["./entrypoint.sh"]
 
