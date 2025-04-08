@@ -14,7 +14,7 @@ pub struct Claims {
 // Génère un token JWT
 pub fn create_jwt(user_id: &str) -> String {
     let expiration = Utc::now()
-        .checked_add_signed(Duration::hours(24))
+        .checked_add_signed(Duration::days(365))
         .expect("valid timestamp")
         .timestamp() as usize;
 

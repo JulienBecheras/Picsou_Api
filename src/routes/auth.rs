@@ -12,7 +12,7 @@ use diesel::prelude::*;
 use crate::schema::users::dsl::users;
 use crate::schema::users::email;
 use crate::auth::AuthenticatedUser;
-use crate::repositories::user_repository::get_user_by_email;
+use crate::repositories::user_repository::{get_user_by_email, get_user_by_id};
 use crate::services::user_service::{authenticate_user, create_user};
 
 #[derive(Deserialize)]
@@ -76,7 +76,12 @@ pub fn register(insertable_user: Json<InsertableUser>) -> Result<Json<RegisterRe
 
 
 #[get("/validate")]
-pub fn validate(user: AuthenticatedUser) -> &'static str {
-    "Your token is valid"
+pub fn validate(authenticated_user: AuthenticatedUser) -> Result<Json<LoginResponse>, Status> {
+    let user: User = get_user_by_id(&authenticated_user.user_id)?;
+
+    Ok(Json(LoginResponse {
+        user: user.clone(),
+        token: authenticated_user.token,
+    }))
 }
 

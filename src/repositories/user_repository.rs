@@ -16,6 +16,17 @@ pub fn get_user_by_email(email: &str) -> Result<User, Status> {
     }
 }
 
+pub fn get_user_by_id(id: &i32) -> Result<User, Status> {
+    let conn = &mut establish_connection();
+
+    match users.filter(crate::schema::users::id.eq(&id))
+        .first::<User>(conn) {
+        Ok(user) => Ok(user as User), //If user is found, we return the first element
+        Err(diesel::result::Error::NotFound) => Err(Status::NotFound),
+        Err(e) => Err(Status::InternalServerError),
+    }
+}
+
 pub fn insert_user(insertable_user: InsertableUser) -> Result<User, Status> {
     let conn = &mut establish_connection();
 

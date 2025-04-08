@@ -12,7 +12,8 @@ pub struct Claims {
 
 // Guard d'authentification
 pub struct AuthenticatedUser {
-    pub user_id: String,
+    pub user_id: i32,
+    pub token: String
 }
 
 #[rocket::async_trait]
@@ -30,7 +31,8 @@ impl<'r> FromRequest<'r> for AuthenticatedUser {
                 // Utilisation de la fonction validate_jwt pour décoder le token
                 match validate_jwt(token) {
                     Some(claims) => Outcome::Success(AuthenticatedUser {
-                        user_id: claims.sub,
+                        user_id: claims.sub.parse().unwrap(),
+                        token: token.to_string(),
                     }),
                     None => Outcome::Error((Status::Unauthorized, ())),
                 }
