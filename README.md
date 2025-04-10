@@ -4,7 +4,7 @@ le projet Picsou vise la création d'une application mobile permettant la gestio
 
 Ce repo contient l'API du projet, écrite en Rust avec l'outil Rocket et l'ORM diesel.
 
-# Déploiement
+# Déploiement de ce projet
 
 ## Plateforme
 
@@ -22,6 +22,10 @@ Un certificat SSL a été créé à partir de Let's Encrypt pour sécuriser les 
 
 Le serveur du raspberry pi a été configuré avec apache2.
 
+## Déploiement
+
+Ce projet est en déploiement continu. Ainsi, chaque commit sur main déclenche un pull sur le raspberry pi, un build du projet et de l'image, execution des migration et déploiement de la nouvelle image. 
+
 # Installation
 
 Vous pouvez deployer l'api sur votre machine en clonant le projet et en exécutant la commande suivante :
@@ -29,3 +33,5 @@ Vous pouvez deployer l'api sur votre machine en clonant le projet et en exécuta
 ```bash
 docker-compose up
 ```
+
+Cela créera un conteneur avec l'api et un conteneur avec la base de données. Veillez à créer un fichier `.env` à la racine du projet.

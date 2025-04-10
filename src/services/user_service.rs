@@ -16,7 +16,7 @@ pub fn authenticate_user(email: &str, password: &str) -> Result<String, Status> 
                 Err(Status::Unauthorized)
             }
         }
-        Err(e) => Err(Status::InternalServerError),
+        Err(e) => Err(e),
     }
 }
 
