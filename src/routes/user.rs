@@ -1,0 +1,32 @@
+use rocket::http::Status;
+use rocket::serde::json::Json;
+use crate::auth::AuthenticatedUser;
+use crate::models::server_error_response::ServerErrorResponse;
+use crate::models::user::User;
+use crate::repositories::user_repository::{get_user_by_email_repository, get_user_by_id_repository};
+use crate::routes::auth::LoginRequest;
+use crate::services::user_service::{authenticate_user_service, get_user_by_email_service, get_user_by_id_service, get_user_token_by_id_service};
+
+#[get("/<id>")]
+pub fn get_user_by_id_route(id: i32, authenticated_user: AuthenticatedUser) -> Result<Json<User>, (Status, String)> {
+    match get_user_by_id_service(&id) {
+            Ok(user) => {
+                let mut tmp_user = user.clone();
+                tmp_user.password = "".parse().unwrap();
+                Ok(Json(tmp_user))
+            }
+            Err(status) => Err(status),
+    }
+}
+
+#[get("/email/<email>")]
+pub fn get_user_by_email_route(email: &str, authenticated_user: AuthenticatedUser) -> Result<Json<User>, (Status, String)> {
+    match get_user_by_email_service(&email) {
+        Ok(user) => {
+            let mut tmp_user = user.clone();
+            tmp_user.password = "".parse().unwrap();
+            Ok(Json(tmp_user))
+        }
+        Err(status) => Err(status),
+    }
+}
