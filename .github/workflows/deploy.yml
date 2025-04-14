@@ -48,7 +48,7 @@ jobs:
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
             cd ~/projet_picsou_api/
-            sudo docker-compose up api
+            sudo docker-compose up -d api
       - name: Delete the unused images
         uses: appleboy/ssh-action@v1.2.2
         with:
