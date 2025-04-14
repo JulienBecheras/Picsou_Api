@@ -8,7 +8,7 @@ echo "preparation de diesel..."
 diesel setup
 
 echo "Appliquer les migrations..."
-diesel migration run
+diesel migration run --database-url "$DATABASE_URL" --migration-dir ./migrations
 
 echo "Compilation du projet..."
 cargo build --release
