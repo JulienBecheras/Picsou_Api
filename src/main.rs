@@ -35,5 +35,5 @@ fn rocket() -> _ {
         .register("/", catchers![default_catcher])
         .mount("/", routes![index])
         .mount("/auth", routes![routes::auth::login, routes::auth::register, routes::auth::validate])
-        .mount("/user", routes![routes::user::get_user_by_id_route, routes::user::get_user_by_email_route])
+        .mount("/user", routes![routes::user::get_user_by_id_route, routes::user::get_user_by_email_route, routes::user::update_user])
 }

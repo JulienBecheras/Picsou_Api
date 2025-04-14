@@ -20,6 +20,7 @@ pub struct LoginRequest {
     pub email: String,
     pub password: String,
 }
+
 #[post("/login", format = "application/json", data = "<login_request>")]
 pub fn login(login_request: Json<LoginRequest>) -> Result<Json<UserToken>, (Status, String)> {
     match authenticate_user_service(&login_request.email, &login_request.password) {
