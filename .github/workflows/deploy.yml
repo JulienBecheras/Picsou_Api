@@ -21,6 +21,7 @@ jobs:
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
             cd ~/projet_picsou_api/
+            sudo docker-compose down api
             git pull origin main
       - name: Build the updated project
         uses: appleboy/ssh-action@v1.2.2
@@ -38,7 +39,8 @@ jobs:
       - name: Deploy the new builed project
         uses: appleboy/ssh-action@v1.2.2
         with:
-          timeout: 5m
+          timeout: 30m
+          command_timeout: 30m
           host: ${{ secrets.SSH_HOST }}
           port: ${{ secrets.SSH_PORT }}
           username: ${{ secrets.SSH_USER }}
@@ -46,8 +48,7 @@ jobs:
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
             cd ~/projet_picsou_api/
-            sudo docker-compose down
-            sudo docker-compose up
+            sudo docker-compose up api
       - name: Delete the unused images
         uses: appleboy/ssh-action@v1.2.2
         with:
