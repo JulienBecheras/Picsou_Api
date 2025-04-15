@@ -6,6 +6,7 @@ use crate::models::user::{InsertableUser, User};
 use crate::schema::users::dsl::users;
 use diesel::ExpressionMethods;
 use crate::models::server_error_response::ServerErrorResponse;
+use crate::schema::users::{email_paypal, first_name, last_name, profil_pict_ref, tel_wero};
 
 pub fn get_user_by_email_repository(email: &str) -> Result<User, (Status, String)> {
     let conn = &mut establish_connection();
@@ -41,8 +42,15 @@ pub fn insert_user_repository(insertable_user: InsertableUser) -> Result<User, (
 
 pub fn update_user_repository(user: &User) -> Result<User, (Status, String)> {
     let conn = &mut establish_connection();
-
-    match diesel::update(users).set(user).get_result::<User>(conn) {
+    let new_user = user.clone();
+    match diesel::update(users)
+        .set((
+            first_name.eq(new_user.first_name),
+            last_name.eq(new_user.last_name),
+            email_paypal.eq(new_user.email_paypal),
+            tel_wero.eq(new_user.tel_wero),
+            profil_pict_ref.eq(new_user.profil_pict_ref)
+        )).get_result::<User>(conn) {
         Ok(user) => Ok(user),
         Err(diesel::result::Error::DatabaseError(diesel::result::DatabaseErrorKind::UniqueViolation, _)) => Err((Status::Conflict, format!("Cannot update user because user with email {} already exist", user.email))),
         Err(_) => Err((Status::InternalServerError, "An internal server error occurred while querying the database".to_string())),
