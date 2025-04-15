@@ -4,9 +4,6 @@ set -e
 echo "Attente de la base de données..."
 ./wait-for-it.sh db:5432 --timeout=30 --strict -- echo "La base de données est prête !"
 
-echo "preparation de diesel..."
-diesel setup
-
 echo "Appliquer les migrations..."
 diesel migration run --database-url "$DATABASE_URL" --migration-dir ./migrations
 
