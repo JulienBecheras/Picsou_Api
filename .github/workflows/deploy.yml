@@ -22,19 +22,6 @@ jobs:
           script: |
             cd ~/projet_picsou_api/
             git pull origin main
-      - name: Stop current docker compose
-        uses: appleboy/ssh-action@v1.2.2
-        with:
-          timeout: 30m
-          command_timeout: 30m
-          host: ${{ secrets.SSH_HOST }}
-          port: ${{ secrets.SSH_PORT }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          script: |
-            cd ~/projet_picsou_api/
-            sudo docker-compose down
       - name: Build and deploy the updated project
         uses: appleboy/ssh-action@v1.2.2
         with:
@@ -47,6 +34,7 @@ jobs:
           passphrase: ${{ secrets.SSH_PASSPHRASE }}
           script: |
             cd ~/projet_picsou_api/
+            sudo docker-compose build
             sudo docker-compose up -d
       - name: Delete the unused images
         uses: appleboy/ssh-action@v1.2.2
