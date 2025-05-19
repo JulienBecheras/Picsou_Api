@@ -1,0 +1,4 @@
+ALTER TABLE groups_users
+    DROP CONSTRAINT IF EXISTS fk_user,
+    DROP CONSTRAINT IF EXISTS fk_group,
+    DROP COLUMN IF EXISTS status;

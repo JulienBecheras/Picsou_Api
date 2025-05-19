@@ -1,0 +1,3 @@
+ALTER TABLE groups
+    ALTER COLUMN pict_ref TYPE VARCHAR,
+    ALTER COLUMN pict_ref SET NOT NULL;
