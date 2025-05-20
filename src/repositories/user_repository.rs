@@ -6,7 +6,7 @@ use crate::models::user::{InsertableUser, User};
 use crate::schema::users::dsl::users;
 use diesel::ExpressionMethods;
 use crate::models::server_error_response::ServerErrorResponse;
-use crate::schema::users::{email_paypal, first_name, last_name, profil_pict_ref, tel_wero};
+use crate::schema::users::{email_paypal, first_name, last_name, profil_pict_ref, tel, tel_wero};
 
 pub fn get_user_by_email_repository(email: &str) -> Result<User, (Status, String)> {
     let conn = &mut establish_connection();
@@ -47,6 +47,7 @@ pub fn update_user_repository(user: &User) -> Result<User, (Status, String)> {
         .set((
             first_name.eq(new_user.first_name),
             last_name.eq(new_user.last_name),
+            tel.eq(new_user.tel),
             email_paypal.eq(new_user.email_paypal),
             tel_wero.eq(new_user.tel_wero),
             profil_pict_ref.eq(new_user.profil_pict_ref)
