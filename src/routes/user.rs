@@ -33,6 +33,9 @@ pub fn get_user_by_email_route(email: &str, authenticated_user: AuthenticatedUse
 
 #[put("/", format = "application/json", data = "<new_user>")]
 pub fn update_user(new_user: Json<User>, authenticated_user: AuthenticatedUser) -> Result<Json<User>, (Status, String)> {
+    if (authenticated_user.user_id != new_user.id) {
+        return Err((Status::Forbidden, "You are not allowed to update this user".to_string()));
+    }
     match update_user_service(&new_user) {
         Ok(user) => {
             Ok(Json(user))

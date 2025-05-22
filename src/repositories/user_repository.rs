@@ -43,7 +43,7 @@ pub fn insert_user_repository(insertable_user: InsertableUser) -> Result<User, (
 pub fn update_user_repository(user: &User) -> Result<User, (Status, String)> {
     let conn = &mut establish_connection();
     let new_user = user.clone();
-    match diesel::update(users)
+    match diesel::update(users.filter(crate::schema::users::id.eq(new_user.id)))
         .set((
             first_name.eq(new_user.first_name),
             last_name.eq(new_user.last_name),
