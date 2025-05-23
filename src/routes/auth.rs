@@ -1,19 +1,10 @@
-use chrono::NaiveDateTime;
-use diesel::{ExpressionMethods, QueryDsl, RunQueryDsl};
 use rocket::serde::json::Json;
-use rocket::http::Method::Post;
 use rocket::http::Status;
-use rocket::Response;
-use rocket::response::status::Unauthorized;
-use serde::{Deserialize, Serialize};
-use crate::models::user::{InsertableUser, User};
+use serde::Deserialize;
+use crate::models::user::InsertableUser;
 use diesel::prelude::*;
-use crate::schema::users::dsl::users;
-use crate::schema::users::email;
 use crate::auth::AuthenticatedUser;
-use crate::models::server_error_response::ServerErrorResponse;
-use crate::repositories::user_repository::{get_user_by_email_repository, get_user_by_id_repository};
-use crate::services::user_service::{authenticate_user_service, create_user_service, get_user_token_by_email_service, get_user_token_by_id_service, UserToken};
+use crate::services::user_service::{authenticate_user_service, create_user_service, get_user_token_by_id_service, UserToken};
 
 #[derive(Deserialize)]
 pub struct LoginRequest {
