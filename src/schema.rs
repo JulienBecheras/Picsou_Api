@@ -99,8 +99,6 @@ diesel::joinable!(participants -> expenses (expenses_id));
 diesel::joinable!(participants -> groups_users (groups_users_id));
 diesel::joinable!(refunds -> contributors (contributors_id));
 diesel::joinable!(refunds -> participants (participants_id));
-diesel ::joinable!(friends -> users (user1_id)); // This is the correct joinable macro for user1_id
-diesel::joinable!(friends -> users (user2_id)); // This is the correct joinable macro for user2_id
 
 diesel::allow_tables_to_appear_in_same_query!(
     contributors,
