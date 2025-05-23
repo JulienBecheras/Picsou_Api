@@ -3,11 +3,9 @@
 diesel::table! {
     contributors (id) {
         id -> Int4,
-        id_user -> Nullable<Int4>,
-        id_payment -> Nullable<Int4>,
-        amount -> Float8,
-        created_at -> Timestamp,
-        updated_at -> Timestamp,
+        amount_contributed -> Float8,
+        groups_users_id -> Int4,
+        expenses_id -> Int4,
     }
 }
 
@@ -16,15 +14,10 @@ diesel::table! {
         id -> Int4,
         name -> Varchar,
         description -> Nullable<Text>,
-    }
-}
-
-diesel::table! {
-    expenses_evo (id) {
-        id -> Int4,
-        name -> Varchar,
-        share_number -> Int4,
-        description -> Nullable<Text>,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+        montant -> Float8,
+        stock_parts -> Int4,
     }
 }
 
@@ -42,7 +35,7 @@ diesel::table! {
     groups (id) {
         id -> Int4,
         name -> Varchar,
-        pict_ref -> Int4,
+        pict_ref -> Varchar,
         created_at -> Timestamp,
         updated_at -> Timestamp,
     }
@@ -55,33 +48,29 @@ diesel::table! {
         id_group -> Int4,
         created_at -> Timestamp,
         updated_at -> Timestamp,
+        status -> Nullable<Int4>,
     }
 }
 
 diesel::table! {
     participants (id) {
         id -> Int4,
-        id_user -> Nullable<Int4>,
-        id_payment -> Nullable<Int4>,
-        amount -> Float8,
-        created_at -> Timestamp,
-        updated_at -> Timestamp,
-    }
-}
-
-diesel::table! {
-    payments (id) {
-        id -> Int4,
-        amount -> Float8,
-        created_at -> Timestamp,
-        updated_at -> Timestamp,
+        amount_participated -> Float8,
+        part_number -> Nullable<Int4>,
+        expenses_id -> Int4,
+        groups_users_id -> Int4,
     }
 }
 
 diesel::table! {
     refunds (id) {
         id -> Int4,
-        status -> Text,
+        amount -> Float8,
+        status -> Varchar,
+        contributors_id -> Int4,
+        participants_id -> Int4,
+        created_at -> Nullable<Timestamp>,
+        updated_at -> Nullable<Timestamp>,
     }
 }
 
@@ -102,23 +91,24 @@ diesel::table! {
     }
 }
 
-diesel::joinable!(contributors -> payments (id_payment));
-diesel::joinable!(contributors -> users (id_user));
-diesel::joinable!(expenses -> payments (id));
-diesel::joinable!(expenses_evo -> payments (id));
-diesel::joinable!(participants -> payments (id_payment));
-diesel::joinable!(participants -> users (id_user));
-diesel::joinable!(refunds -> payments (id));
+diesel::joinable!(contributors -> expenses (expenses_id));
+diesel::joinable!(contributors -> groups_users (groups_users_id));
+diesel::joinable!(groups_users -> groups (id_group));
+diesel::joinable!(groups_users -> users (id_user));
+diesel::joinable!(participants -> expenses (expenses_id));
+diesel::joinable!(participants -> groups_users (groups_users_id));
+diesel::joinable!(refunds -> contributors (contributors_id));
+diesel::joinable!(refunds -> participants (participants_id));
+diesel ::joinable!(friends -> users (user1_id)); // This is the correct joinable macro for user1_id
+diesel::joinable!(friends -> users (user2_id)); // This is the correct joinable macro for user2_id
 
 diesel::allow_tables_to_appear_in_same_query!(
     contributors,
     expenses,
-    expenses_evo,
     friends,
     groups,
     groups_users,
     participants,
-    payments,
     refunds,
     users,
 );

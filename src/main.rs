@@ -10,7 +10,6 @@ mod auth;
 
 use rocket::http::Status;
 use rocket::Request;
-use rocket::response::content;
 use rocket::serde::json::Json;
 use serde::Serialize;
 
@@ -30,7 +29,7 @@ fn index() -> &'static str {
 }
 
 #[launch]
-fn rocket() -> _ {
+fn rocket() -> rocket::Rocket<rocket::Build> {
     rocket::build()
         .register("/", catchers![default_catcher])
         .mount("/", routes![index])

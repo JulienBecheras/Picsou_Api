@@ -1,7 +1,5 @@
 use rocket::http::Status;
-use rocket::serde::json::Json;
 use rocket::serde::Serialize;
-use crate::models::server_error_response::ServerErrorResponse;
 use crate::models::user::{InsertableUser, User};
 use crate::repositories::user_repository::{delete_user_repository, get_user_by_email_repository, get_user_by_id_repository, insert_user_repository, update_user_repository};
 use crate::utils::hash::verify_password;

@@ -1,11 +1,9 @@
 use diesel::{QueryDsl, RunQueryDsl};
-use diesel::associations::HasTable;
 use rocket::http::Status;
 use projet_picsou_api::establish_connection;
 use crate::models::user::{InsertableUser, User};
 use crate::schema::users::dsl::users;
 use diesel::ExpressionMethods;
-use crate::models::server_error_response::ServerErrorResponse;
 use crate::schema::users::{email_paypal, first_name, last_name, profil_pict_ref, tel, tel_wero};
 
 pub fn get_user_by_email_repository(email: &str) -> Result<User, (Status, String)> {
