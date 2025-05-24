@@ -1,3 +1,5 @@
+pub(crate) mod expenses;
+
 use rocket::http::Status;
 use rocket::serde::json::Json;
 use crate::auth::AuthenticatedUser;
