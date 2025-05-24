@@ -33,7 +33,7 @@ fn rocket() -> rocket::Rocket<rocket::Build> {
     rocket::build()
         .register("/", catchers![default_catcher])
         .mount("/", routes![index])
-        .mount("/auth", routes![routes::auth::login, routes::auth::register, routes::auth::validate]) // avoir comment adapter à sessions
+        .mount("/auth", routes![routes::session::login, routes::session::register, routes::session::validate]) // avoir comment adapter à sessions
         .mount("/user", routes![
             routes::user::create_user, // /!\ A voir comment intégrer le register à notre architecture REST
 
