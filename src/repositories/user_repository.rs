@@ -6,7 +6,7 @@ use crate::schema::users::dsl::users;
 use diesel::ExpressionMethods;
 use crate::schema::users::{email_paypal, first_name, last_name, profil_pict_ref, tel, tel_wero};
 
-pub fn get_user_by_email_repository(email: &str) -> Result<User, (Status, String)> {
+pub fn get_user_by_email(email: &str) -> Result<User, (Status, String)> {
     let conn = &mut establish_connection();
 
     match users.filter(crate::schema::users::email.eq(&email))
@@ -17,7 +17,7 @@ pub fn get_user_by_email_repository(email: &str) -> Result<User, (Status, String
     }
 }
 
-pub fn get_user_by_id_repository(id: &i32) -> Result<User, (Status, String)> {
+pub fn get_user_by_id(id: &i32) -> Result<User, (Status, String)> {
     let conn = &mut establish_connection();
 
     match users.filter(crate::schema::users::id.eq(&id))
@@ -28,7 +28,7 @@ pub fn get_user_by_id_repository(id: &i32) -> Result<User, (Status, String)> {
     }
 }
 
-pub fn insert_user_repository(insertable_user: InsertableUser) -> Result<User, (Status, String)> {
+pub fn insert_user(insertable_user: InsertableUser) -> Result<User, (Status, String)> {
     let conn = &mut establish_connection();
 
     match diesel::insert_into(users).values(&insertable_user).get_result::<User>(conn) {
@@ -38,7 +38,7 @@ pub fn insert_user_repository(insertable_user: InsertableUser) -> Result<User, (
     }
 }
 
-pub fn update_user_repository(user: &User) -> Result<User, (Status, String)> {
+pub fn update_user(user: &User) -> Result<User, (Status, String)> {
     let conn = &mut establish_connection();
     let new_user = user.clone();
     match diesel::update(users.filter(crate::schema::users::id.eq(new_user.id)))
@@ -56,10 +56,10 @@ pub fn update_user_repository(user: &User) -> Result<User, (Status, String)> {
     }
 }
 
-pub fn delete_user_repository(user_to_delete: &User) -> Result<usize, (Status, String)> {
+pub fn delete_user(user_id: &i32) -> Result<usize, (Status, String)> {
     let conn = &mut establish_connection();
 
-    match diesel::delete(users.filter(crate::schema::users::id.eq(user_to_delete.id)))
+    match diesel::delete(users.filter(crate::schema::users::id.eq(user_id)))
         .execute(conn)
     {
         Ok(rows_affected) => {
@@ -72,7 +72,7 @@ pub fn delete_user_repository(user_to_delete: &User) -> Result<usize, (Status, S
         }
         Err(diesel::result::Error::NotFound) => {
             // L'utilisateur avec l'ID spécifié n'a pas été trouvé
-            Err((Status::NotFound, format!("User with id {} does not exist", user_to_delete.id)))
+            Err((Status::NotFound, format!("User with id {} does not exist",user_id)))
         }
         Err(e) => {
             eprintln!("Error deleting user: {:?}", e);
