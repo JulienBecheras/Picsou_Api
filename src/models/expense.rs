@@ -9,11 +9,11 @@ use serde::Serialize;
 pub struct User {
     pub id: i32,
     pub name: String,
-    pub description: String,
+    pub description: Option<String>,
     pub montant: f64,
     pub stock_parts: i32,
-    pub created_at: Option<NaiveDateTime>,
-    pub updated_at: Option<NaiveDateTime>,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
 }
 
 // Struct pour les INSERTS sans les champs auto-générés
