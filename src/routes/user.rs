@@ -1,41 +1,39 @@
+pub(crate) mod expenses;
+
 use rocket::http::Status;
 use rocket::serde::json::Json;
 use crate::auth::AuthenticatedUser;
-use crate::models::user::User;
-use crate::services::user_service::{get_user_by_email_service, get_user_by_id_service, update_user_service};
+use crate::models::user::{InsertableUser, User};
+use crate::services::user_service;
 
 #[get("/<id>")]
-pub fn get_user_by_id_route(id: i32, authenticated_user: AuthenticatedUser) -> Result<Json<User>, (Status, String)> {
-    match get_user_by_id_service(&id) {
+pub fn get_user_by_id_route(id: i32, _authenticated_user: AuthenticatedUser) -> Result<Json<User>, (Status, String)> {
+    match user_service::get_user_essentials_by_id(&id) {
             Ok(user) => {
-                let mut tmp_user = user.clone();
-                tmp_user.password = "".parse().unwrap();
-                Ok(Json(tmp_user))
+                Ok(Json(user))
             }
             Err(status) => Err(status),
     }
 }
 
 #[get("/email/<email>")]
-pub fn get_user_by_email_route(email: &str, authenticated_user: AuthenticatedUser) -> Result<Json<User>, (Status, String)> {
-    match get_user_by_email_service(&email) {
+pub fn get_user_by_email_route(email: &str, _authenticated_user: AuthenticatedUser) -> Result<Json<User>, (Status, String)> {
+    match user_service::get_user_essentials_by_email(&email) {
         Ok(user) => {
-            let mut tmp_user = user.clone();
-            tmp_user.password = "".parse().unwrap();
-            Ok(Json(tmp_user))
+            Ok(Json(user))
         }
         Err(status) => Err(status),
     }
 }
 
-#[put("/", format = "application/json", data = "<new_user>")]
-pub fn update_user(new_user: Json<User>, authenticated_user: AuthenticatedUser) -> Result<Json<User>, (Status, String)> {
-    if authenticated_user.user_id != new_user.id {
-        return Err((Status::Forbidden, "You are not allowed to update this user".to_string()));
-    }
-    match update_user_service(&new_user) {
-        Ok(user) => {
-            Ok(Json(user))
+
+
+#[post("/", format = "application/json", data = "<insertable_user>")]
+pub fn create_user(insertable_user: Json<InsertableUser>) -> Result<Json<(User, String)>, (Status, String)> {
+    let insertable_user_entity = insertable_user.into_inner();
+    match user_service::create_user(&insertable_user_entity) {
+        Ok(auth_user) => {
+            Ok(Json(auth_user))
         }
         Err(status) => Err(status),
     }

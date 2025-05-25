@@ -1,7 +1,7 @@
 use rocket::{request::{self, FromRequest, Request}, outcome::Outcome};
 use rocket::http::Status;
 use serde::{Deserialize, Serialize};
-use crate::utils::jwt::validate_jwt;// Assure-toi que validate_jwt est bien déclarée dans `auth.rs`
+use crate::utils::jwt::validate_jwt;// Assure-toi que validate_jwt est bien déclarée dans `session`
 
 // Structure représentant les données du token
 #[derive(Debug, Serialize, Deserialize)]

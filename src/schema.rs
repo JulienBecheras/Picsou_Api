@@ -48,7 +48,7 @@ diesel::table! {
         id_group -> Int4,
         created_at -> Timestamp,
         updated_at -> Timestamp,
-        status -> Nullable<Int4>,
+        status -> Int4,
     }
 }
 
