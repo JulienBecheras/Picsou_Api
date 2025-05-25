@@ -16,7 +16,7 @@ pub struct GroupUser {
 
 // Struct pour les INSERTS sans les champs auto-générés
 #[derive(Insertable, Deserialize, Clone)]
-#[diesel(table_name = crate::schema::groups)]
+#[diesel(table_name = crate::schema::groups_users)]
 pub struct InsertableGroupUser {
     pub id_user: i32,
     pub id_group: i32,
