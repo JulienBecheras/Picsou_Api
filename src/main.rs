@@ -32,27 +32,24 @@ fn index() -> &'static str {
 fn rocket() -> rocket::Rocket<rocket::Build> {
     rocket::build()
         .register("/", catchers![default_catcher])
-        .mount("/", routes![index])
-        .mount("/session", routes![routes::session::login, routes::session::register, routes::session::validate]) // avoir comment adapter à sessions
+        .mount("/api", routes![index])
+        .mount("/session", routes![routes::session::create_session, routes::session::delete_session]) // avoir comment adapter à sessions
         .mount("/user", routes![
-            routes::user::create_user, // /!\ A voir comment intégrer le register à notre architecture REST
+            routes::user::create_user,
 
                 //{user_id}
                 routes::user::get_user_by_id_route,
 
-                    //expenses
+                    /*//expenses
                     routes::user::expenses::get_all_expenses_with_user,
 
                         //{expense_id}
-                        routes::user::expenses::get_expense_by_id_with_user,
+                        routes::user::expenses::get_expense_by_id_with_user,*/
 
                 //email/{user_email}
                 routes::user::get_user_by_email_route,
-
-
-            routes::user::update_user // a bougerr dans /me
         ])
-        .mount("/me", routes![
+        /*.mount("/me", routes![
             routes::me::get_user_me,
             routes::me::update_user_me,
             routes::me::delete_user_me,
@@ -69,10 +66,10 @@ fn rocket() -> rocket::Rocket<rocket::Build> {
             routes::me::groups::get_all_groups,
             
             
-        ])
+        ])*/
         .mount("/groups", routes![
             routes::groups::create_group,
-
+/*
             //expenses
             routes::groups::expenses::get_all_exepenses,
 
@@ -103,5 +100,6 @@ fn rocket() -> rocket::Rocket<rocket::Build> {
                     routes::groups::expenses::get_expense_by_id_in_group,
                     routes::groups::expenses::update_expense_in_group, //Il faudra prévoir la gestion du status de l'utilisateur dans le groupe pour lui permettre de modifier une dépense ou non
                     routes::groups::expenses::delete_expense_in_group, //Il faudra prévoir la gestion du status de l'utilisateur dans le groupe pour lui permettre de supprimer une dépense ou non
+*/
         ])
 }
