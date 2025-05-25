@@ -1,10 +1,8 @@
 use rocket::serde::json::Json;
 use rocket::http::{Cookie, CookieJar, Status};
 use serde::Deserialize;
-use crate::models::user::{InsertableUser, User};
-use diesel::prelude::*;
+use crate::models::user::User;
 use crate::auth::AuthenticatedUser;
-use crate::services::user_service;
 use crate::services::session_service;
 
 #[derive(Deserialize)]

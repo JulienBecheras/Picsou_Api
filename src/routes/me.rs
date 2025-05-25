@@ -21,20 +21,20 @@ pub fn update_user(new_user: Json<User>, authenticated_user: AuthenticatedUser) 
 }
 
 #[delete("/", format = "application/json")]
-pub fn delete_user(authenticated_user: AuthenticatedUser) -> Result<usize, (Status, String)> {
+pub fn delete_user(authenticated_user: AuthenticatedUser) -> Result<Json<usize>, (Status, String)> {
     match user_service::delete_user(&authenticated_user.user_id) {
         Ok(res) => {
-            Ok(res)
+            Ok(Json(res))
         }
         Err(status) => Err(status),
     }
 }
 
 #[get("/", format = "application/json")]
-pub fn get_user(authenticated_user: AuthenticatedUser) -> Result<User, (Status, String)> {
+pub fn get_user(authenticated_user: AuthenticatedUser) -> Result<Json<User>, (Status, String)> {
     match user_service::get_user_by_id(&authenticated_user.user_id) {
         Ok(res) => {
-            Ok(res)
+            Ok(Json(res))
         }
         Err(status) => Err(status),
     }
