@@ -54,7 +54,6 @@ pub fn user_is_owner_of_group(user_with_status: &Vec<UserWithStatus>, authentica
 }
 
 pub fn get_group_by_id(group_id: &i32, authenticated_user: &AuthenticatedUser) -> Result<Group, (Status, String)> {
-    let conn = &mut establish_connection();
     match crate::repositories::group_repository::get_group_by_id(group_id) {
         Ok(group) => {
             // Here you would typically check if the authenticated user is a member of the group
@@ -86,7 +85,7 @@ pub fn is_user_member_of_group(group: &Group, authenticated_user: &Authenticated
 
 pub fn delete_group(group_id: &i32, authenticated_user: &AuthenticatedUser) -> Result<String, (Status, String)> {
     match group_repository::get_group_by_id(group_id) {
-        Ok(group) => {
+        Ok(_) => {
             if user_is_owner_of_group_bd(group_id, authenticated_user){
                 match group_repository::delete_group(group_id) {
                     Ok(_) => Ok("Group deleted successfully".to_string()),
