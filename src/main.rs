@@ -49,11 +49,11 @@ fn rocket() -> rocket::Rocket<rocket::Build> {
                 //email/{user_email}
                 routes::user::get_user_by_email_route,
         ])
-        /*.mount("/me", routes![
-            routes::me::get_user_me,
-            routes::me::update_user_me,
-            routes::me::delete_user_me,
-            
+        .mount("/me", routes![
+            routes::me::get_user,
+            routes::me::update_user,
+            routes::me::delete_user,
+            /*
             //friends
             routes::me::friends::get_all_friends,
             routes::me::friends::add_friend,
@@ -63,10 +63,10 @@ fn rocket() -> rocket::Rocket<rocket::Build> {
                 // PLUS TARD : ajout de la possibilité de gérer ses amis (accepter, refuser, supprimer, bloquer, debloquer, limiter)
                 
             //groups
-            routes::me::groups::get_all_groups,
+            routes::me::groups::get_all_groups,*/
             
             
-        ])*/
+        ])
         .mount("/groups", routes![
             routes::groups::create_group,
 /*
