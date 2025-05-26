@@ -4,8 +4,10 @@ use crate::auth::AuthenticatedUser;
 use crate::repositories::group_repository;
 use crate::repositories::group_user_repository::{insert_all_user_group, get_users_group, get_owner_group};
 use projet_picsou_api::establish_connection;
-use crate::models::group::{Group, UserWithStatus, GroupWithUser}; // à adapter selon l’emplacement
-use crate::models::group_user::InsertableGroupUser;
+use crate::models::group::{Group, UserIdWithStatus, GroupWithUser}; // à adapter selon l’emplacement
+use crate::models::group_user::{InsertableGroupUser};
+use crate::repositories::user_repository::get_users_by_ids;
+use crate::models::user::UserWithStatus;
 
 pub fn create_group(group_with_user: &GroupWithUser, authenticated_user: &AuthenticatedUser) -> Result<Group, (Status, String)> {
     match user_is_owner_of_group(&group_with_user.users, authenticated_user) {
@@ -35,7 +37,7 @@ pub fn create_group(group_with_user: &GroupWithUser, authenticated_user: &Authen
         Err(e) => Err(e),
     }
 }
-pub fn user_is_owner_of_group(user_with_status: &Vec<UserWithStatus>, authenticated_user: &AuthenticatedUser) -> Result<bool, (Status, String)>{
+pub fn user_is_owner_of_group(user_with_status: &Vec<UserIdWithStatus>, authenticated_user: &AuthenticatedUser) -> Result<bool, (Status, String)>{
     let mut nb_owner: i32 = 0;
     let mut owner: i32 = -1;
     for user in user_with_status {
@@ -106,5 +108,39 @@ pub fn user_is_owner_of_group_bd(group_id: &i32, authenticated_user: &Authentica
             else { return false; }
         }
         Err(_) => return false,
+    }
+}
+
+pub fn get_users_group_service(group_id: &i32, authenticated_user: &AuthenticatedUser) -> Result<Vec<UserWithStatus>, (Status, String)> {
+    let group = match group_repository::get_group_by_id(group_id) {
+        Ok(group) => group,
+        Err(e) => return Err(e),
+    };
+    if is_user_member_of_group(&group, authenticated_user) {
+        let group_users = match get_users_group(group_id) {
+            Ok(users) => users,
+            Err(e) => return Err(e),
+        };
+
+        let users = match get_users_by_ids(&group_users.iter().map(|gu| gu.id_user).collect()){
+            Ok(users) => users,
+            Err(e) => return Err(e),
+        };
+
+        let mut list_users_with_status: Vec<UserWithStatus> = Vec::new();
+        for user in users {
+            let user_with_status : UserWithStatus = UserWithStatus {
+                user : user.clone(),
+                status: group_users.iter()
+                    .find(|gu| gu.id_user == user.id)
+                    .map(|gu| gu.status)
+                    .unwrap_or(5), // 1 si non trouvé, à adapter selon ta logique              , // Default status to 1 if not found
+            };
+            list_users_with_status.push(user_with_status);
+        }
+        return Ok(list_users_with_status);
+
+    }else {
+        Err((Status::Forbidden, "You are not a member of this group".to_string()))
     }
 }

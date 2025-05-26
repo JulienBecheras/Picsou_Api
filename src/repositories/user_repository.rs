@@ -28,6 +28,17 @@ pub fn get_user_by_id(id: &i32) -> Result<User, (Status, String)> {
     }
 }
 
+pub fn get_users_by_ids(ids: &Vec<i32>) -> Result<Vec<User>, (Status, String)> {
+    let conn = &mut establish_connection();
+
+    match users.filter(crate::schema::users::id.eq_any(ids))
+        .load::<User>(conn) {
+        Ok(list_users) => Ok(list_users), //If user is found, we return the first element
+        Err(diesel::result::Error::NotFound) => Err((Status::NotFound, "User does not exist".to_string())),
+        Err(_) => Err((Status::InternalServerError, "An internal server error occurred while querying the database".to_string())),
+    }
+}
+
 pub fn insert_user(insertable_user: InsertableUser) -> Result<User, (Status, String)> {
     let conn = &mut establish_connection();
 

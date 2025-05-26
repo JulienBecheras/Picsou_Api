@@ -35,3 +35,9 @@ pub struct InsertableUser {
     pub profil_pict_ref: String,
     pub password: String,
 }
+
+#[derive(Deserialize, Clone, Serialize)]
+pub struct UserWithStatus {
+    pub user: User,
+    pub status: i32,
+}
