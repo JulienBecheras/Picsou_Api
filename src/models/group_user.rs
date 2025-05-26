@@ -9,7 +9,7 @@ pub struct GroupUser {
     pub id: i32,
     pub id_user: i32,
     pub id_group: i32,
-    pub status: i32,
+    //pub status: i32,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }

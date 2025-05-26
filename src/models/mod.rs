@@ -6,3 +6,4 @@ mod contributor;
 mod participant;
 pub(crate) mod group;
 pub(crate) mod group_user;
+pub mod friend_request;

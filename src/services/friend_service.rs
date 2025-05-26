@@ -1,0 +1,135 @@
+use rocket::http::Status;
+use crate::repositories::friend_repository;
+use crate::models::friend::{Friend, InsertableFriend};
+use crate::models::friend_request::{FriendRequest, InsertableFriendRequest};
+use crate::repositories::friend_repository::get_friend_request_by_id;
+
+/// Vérifie si deux utilisateurs sont amis
+pub fn are_they_friends(user1_id: i32, user2_id: i32) -> Result<bool, (Status, String)> {
+    match friend_repository::get_friends_for_user(user1_id) {
+        Ok(friends) => {
+            if friends.iter().any(|friend| friend.user2_id == user2_id || friend.user1_id == user2_id) {
+                Ok(true)
+            } else {
+                Ok(false)
+            }
+        }
+        Err(e) => Err(e),
+    }
+}
+
+/// Vérifie si deux utilisateurs ont une demande d'amis en cours
+pub fn are_they_friends_request(user1_id: i32, user2_id: i32) -> Result<bool, (Status, String)> {
+    match friend_repository::get_friend_requests_for_user(user1_id) {
+        Ok(friends) => {
+            if friends.iter().any(|friend| friend.to_user_id == user2_id || friend.from_user_id == user2_id) {
+                Ok(true)
+            } else {
+                Ok(false)
+            }
+        }
+        Err(e) => Err(e),
+    }
+}
+
+/// Trouve une demande d'amis spécifique entre deux utilisateurs
+pub fn find_friend_request(from_user_id: i32, to_user_id: i32) -> Result<FriendRequest, (Status, String)> {
+    match friend_repository::get_friend_requests_for_user(from_user_id) {
+        Ok(requests) => {
+            requests.into_iter().find(|request| request.to_user_id == to_user_id && request.from_user_id == from_user_id)
+                .ok_or((Status::NotFound, "Demande d'amis non trouvée".to_string()))
+        }
+        Err(e) => Err(e),
+    }
+}
+
+/// Crée une nouvelle demande d'amis. On vérifie d'abord si les utilisateurs sont déjà amis ou s'ils ont déjà une demande d'amis en cours.
+pub fn create_friend_request(request: &InsertableFriendRequest) -> Result<FriendRequest, (Status, String)> {
+    match are_they_friends(request.from_user_id, request.to_user_id) { 
+        Ok(areFriends) => {
+            if areFriends {
+                Err((Status::BadRequest, "Vous êtes déjà amis".to_string()))
+            } else {
+                match are_they_friends_request(request.from_user_id, request.to_user_id) { 
+                    Ok(areFriendRequests) => {
+                        if areFriendRequests {
+                            Err((Status::Conflict, "Vous avez déjà envoyé une demande d'amis".to_string()))
+                        } else {
+                            friend_repository::create_friend_request(request)
+                        }
+                    }
+                    Err(e) => Err(e),
+                }
+            }
+        }
+        Err(e) => Err(e),
+    }
+}
+
+/// Supprime une demande d'amis. On vérifie d'abord si la demande d'amis existe pour l'utilisateur.
+pub fn delete_friend_request(user_id: i32, request_id: i32) -> Result<(), (Status, String)> {
+    match get_friend_requests_for_user(user_id) {
+        Ok(requests) => {
+            if requests.iter().any(|request| request.id == request_id) {
+                friend_repository::delete_friend_request(request_id)
+            } else {
+                Err((Status::NotFound, "Demande d'amis non trouvée pour cet utilisateur".to_string()))
+            }
+        }
+        Err(e) => Err(e),
+    }
+}
+
+pub fn delete_friend(user_id: i32, friend_id: i32) -> Result<(), (Status, String)> {
+    match get_friends_for_user(user_id) {
+        Ok(requests) => {
+            if requests.iter().any(|request| request.id == friend_id) {
+                friend_repository::delete_friend(friend_id)
+            } else {
+                Err((Status::NotFound, "Amis non trouvée pour cet utilisateur".to_string()))
+            }
+        }
+        Err(e) => Err(e),
+    }
+}
+
+/// Accepte une demande d'amis. On vérifie d'abord si la demande d'amis existe et si l'utilisateur est bien le destinataire de la demande.
+pub fn accept_friend_request(
+    request_id: i32,
+    user_id: i32
+) -> Result<Friend, (Status, String)> {
+    match get_friend_request_by_id(request_id) {
+        Ok(request) => {
+            if request.to_user_id != user_id {
+                return Err((Status::Forbidden, "Vous ne pouvez pas accepter cette demande d'amis".to_string()));
+            }
+            let new_friend = InsertableFriend {
+                user1_id: request.from_user_id,
+                user2_id: request.to_user_id,
+            };
+            match friend_repository::create_friend(&new_friend) {
+                Ok(friend) => {
+                    // Ensuite, on supprime la demande d'amis
+                    match friend_repository::delete_friend_request(request_id) {
+                        Ok(_) => Ok(friend),
+                        Err(e) => Err(e),
+                    }
+                }
+                Err(e) => Err(e),
+            }
+        }
+        Err(e) => Err(e),
+    }
+}
+
+
+
+// Récupérer toutes les demandes d'amis pour un utilisateur
+pub fn get_friend_requests_for_user(user_id: i32) -> Result<Vec<FriendRequest>, (Status, String)> {
+    friend_repository::get_friend_requests_for_user(user_id)
+}
+
+// Récupérer tous les amis d'un utilisateur
+pub fn get_friends_for_user(user_id: i32) -> Result<Vec<Friend>, (Status, String)> {
+    friend_repository::get_friends_for_user(user_id)
+}
