@@ -33,40 +33,35 @@ fn rocket() -> rocket::Rocket<rocket::Build> {
     rocket::build()
         .register("/", catchers![default_catcher])
         .mount("/api", routes![index])
-        .mount("/session", routes![routes::session::create_session, routes::session::delete_session]) // avoir comment adapter à sessions
+        .mount("/session", routes![routes::session::create_session, routes::session::delete_session])
         .mount("/user", routes![
             routes::user::create_user,
-
                 //{user_id}
                 routes::user::get_user_by_id_route,
-
                     /*//expenses
                     routes::user::expenses::get_all_expenses_with_user,
-
                         //{expense_id}
                         routes::user::expenses::get_expense_by_id_with_user,*/
-
                 //email/{user_email}
                 routes::user::get_user_by_email_route,
         ])
-        /*.mount("/me", routes![
-            routes::me::get_user_me,
-            routes::me::update_user_me,
-            routes::me::delete_user_me,
-            
+        .mount("/me", routes![
+            routes::me::get_user,
+            routes::me::update_user,
+            routes::me::delete_user,
             //friends
-            routes::me::friends::get_all_friends,
-            routes::me::friends::add_friend,
-            
+            routes::me::friends::get_my_friends,
                 //{friend_id}
                 routes::me::friends::delete_friend, 
-                // PLUS TARD : ajout de la possibilité de gérer ses amis (accepter, refuser, supprimer, bloquer, debloquer, limiter)
-                
+                //requests
+                routes::me::friend_requests::create_friend_request,
+                routes::me::friend_requests::get_my_friend_requests,
+                    //{request_id}
+                    routes::me::friend_requests::delete_friend_request,
+                    routes::me::friend_requests::accept_friend_request,
             //groups
-            routes::me::groups::get_all_groups,
-            
-            
-        ])*/
+            //routes::me::groups::get_all_groups,
+        ])
         .mount("/groups", routes![
             routes::groups::create_group,
 /*
