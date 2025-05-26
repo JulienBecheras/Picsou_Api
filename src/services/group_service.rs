@@ -1,11 +1,11 @@
 use diesel::Connection;
 use rocket::http::Status;
 use crate::auth::AuthenticatedUser;
-use crate::repositories::group_repository;
+use crate::repositories::{group_repository, group_user_repository};
 use crate::repositories::group_user_repository::{insert_all_user_group, get_users_group, get_owner_group};
 use projet_picsou_api::establish_connection;
 use crate::models::group::{Group, UserIdWithStatus, GroupWithUser}; // à adapter selon l’emplacement
-use crate::models::group_user::{InsertableGroupUser};
+use crate::models::group_user::{GroupUser, InsertableGroupUser};
 use crate::repositories::user_repository::get_users_by_ids;
 use crate::models::user::UserWithStatus;
 
@@ -143,4 +143,27 @@ pub fn get_users_group_service(group_id: &i32, authenticated_user: &Authenticate
     }else {
         Err((Status::Forbidden, "You are not a member of this group".to_string()))
     }
+}pub fn add_user_to_group_service(group_id: &i32, group_user: &InsertableGroupUser, authenticated_user: &AuthenticatedUser) -> Result<String, (Status, String)> {
+    let conn = &mut establish_connection();
+    let group_users = match get_users_group(group_id) {
+        Ok(users) => users,
+        Err(e) => return Err(e),
+    };
+    if user_is_admin_of_group(&group_users, authenticated_user) {
+        if group_user.status >= 2 && group_user.status <= 5 {
+            match insert_all_user_group(conn,&[group_user.clone()]) {
+                Ok(_) => Ok("User added to group successfully".to_string()),
+                Err((status, message)) => Err((status, message)),
+            }
+        }else { return Err((Status::Unauthorized, "The participant you tried to insert get too  many privilege".to_string())) ;}
+    } else { return Err((Status::Unauthorized, "You are not an admin of this group".to_string()));}
+}
+
+pub fn user_is_admin_of_group(user_with_status: &Vec<GroupUser>, authenticated_user: &AuthenticatedUser) -> bool{
+    for user in user_with_status {
+        if user.id_user == authenticated_user.user_id && (user.status == 0 || user.status == 1) {
+            return true;
+        }
+    }
+    return false;
 }
