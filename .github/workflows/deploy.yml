@@ -35,7 +35,7 @@ jobs:
           script: |
             cd ~/projet_picsou_api/
             sudo docker-compose down
-            sudo docker-compose up
+            sudo docker-compose up -d
       - name: Delete the unused images
         uses: appleboy/ssh-action@v1.2.2
         with:
