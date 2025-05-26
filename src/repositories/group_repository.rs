@@ -25,3 +25,12 @@ pub fn insert_group(group: &InsertableGroup) -> Result<Group, (Status, String)> 
     let conn = &mut establish_connection();
     insert_group_transac(conn, group)
 }
+
+pub fn delete_group(group_id: &i32) -> Result<String, (Status, String)> {
+    let conn = &mut establish_connection();
+    match diesel::delete(groups.filter(id.eq(group_id))).execute(conn) {
+        Ok(0) => Err((Status::NotFound, "Group not found".to_string())),
+        Ok(_) => Ok("Group deleted successfully".to_string()),
+        Err(_) => Err((Status::InternalServerError, "An internal server error occurred while deleting the group".to_string())),
+    }
+}

@@ -77,13 +77,14 @@ fn rocket() -> rocket::Rocket<rocket::Build> {
                 routes::groups::expenses::get_expense_by_id,
                 routes::groups::expenses::update_expense,
                 routes::groups::expenses::delete_expense,
+                */
 
             //{group_id}
             routes::groups::get_group_by_id,
-            routes::groups::modify_group, // Il faudra prévoir la gestion du status de l'utilisateur dans le groupe pour lui permettre de modifier des infos ou non
+            /*routes::groups::modify_group, */// Il faudra prévoir la gestion du status de l'utilisateur dans le groupe pour lui permettre de modifier des infos ou non
             routes::groups::delete_group, // Il faudra prévoir la gestion du status de l'utilisateur dans le groupe pour lui permettre de supprimer le groupe ou non
 
-                //users
+               /* //users
                 routes::groups::users::get_all_users_in_group,
                 routes::groups::users::add_user_to_group,
 
