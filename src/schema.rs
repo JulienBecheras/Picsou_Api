@@ -22,6 +22,16 @@ diesel::table! {
 }
 
 diesel::table! {
+    friend_requests (id) {
+        id -> Int4,
+        from_user_id -> Int4,
+        to_user_id -> Int4,
+        created_at -> Timestamp,
+        updated_at -> Timestamp,
+    }
+}
+
+diesel::table! {
     friends (id) {
         id -> Int4,
         user1_id -> Int4,
@@ -103,6 +113,7 @@ diesel::joinable!(refunds -> participants (participants_id));
 diesel::allow_tables_to_appear_in_same_query!(
     contributors,
     expenses,
+    friend_requests,
     friends,
     groups,
     groups_users,
