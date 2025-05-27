@@ -60,7 +60,7 @@ pub fn get_group_by_id(group_id: &i32, authenticated_user: &AuthenticatedUser) -
         Ok(group) => {
             // Here you would typically check if the authenticated user is a member of the group
             // This is a placeholder for that logic
-            if is_user_member_of_group(&group, authenticated_user) {
+            if is_user_member_of_group(&group.id, authenticated_user.user_id) {
                 Ok(group)
             } else {
                 Err((Status::Forbidden, "You are not a member of this group".to_string()))
@@ -70,11 +70,11 @@ pub fn get_group_by_id(group_id: &i32, authenticated_user: &AuthenticatedUser) -
     }
 }
 
-pub fn is_user_member_of_group(group: &Group, authenticated_user: &AuthenticatedUser) -> bool {
-    match get_users_group(&group.id) {
+pub fn is_user_member_of_group(group_id: &i32, user_id: i32) -> bool {
+    match get_users_group(group_id) {
         Ok(group_users) => {
             for groups_user in group_users {
-                if groups_user.id_user == authenticated_user.user_id {
+                if groups_user.id_user == user_id {
                     return true;
                 }
             }
@@ -116,7 +116,7 @@ pub fn get_users_group_service(group_id: &i32, authenticated_user: &Authenticate
         Ok(group) => group,
         Err(e) => return Err(e),
     };
-    if is_user_member_of_group(&group, authenticated_user) {
+    if is_user_member_of_group(&group.id, authenticated_user.user_id) {
         let group_users = match get_users_group(group_id) {
             Ok(users) => users,
             Err(e) => return Err(e),
@@ -129,7 +129,7 @@ pub fn get_users_group_service(group_id: &i32, authenticated_user: &Authenticate
 
         let mut list_users_with_status: Vec<UserWithStatus> = Vec::new();
         for user in users {
-            let mut public_user : PublicUser = PublicUser{
+            let public_user : PublicUser = PublicUser{
                 id: user.id,
                 first_name: user.first_name,
                 last_name: user.last_name,
@@ -175,4 +175,62 @@ pub fn user_is_admin_of_group(user_with_status: &Vec<GroupUser>, authenticated_u
         }
     }
     return false;
+}
+
+pub fn get_user_by_id_in_group_service(group_id: &i32, user_id: &i32, authenticated_user: &AuthenticatedUser) -> Result<UserWithStatus, (Status, String)> {
+    let group = match group_repository::get_group_by_id(group_id) {
+        Ok(group) => group,
+        Err(e) => return Err(e),
+    };
+    if is_user_member_of_group(&group.id, authenticated_user.user_id) {
+        let group_users = match get_users_group(group_id) {
+            Ok(users) => users,
+            Err(e) => return Err(e),
+        };
+
+        if let Some(group_user) = group_users.iter().find(|gu| gu.id_user == *user_id) {
+            let user = match crate::repositories::user_repository::get_user_by_id(user_id) {
+                Ok(user) => user,
+                Err(e) => return Err(e),
+            };
+            let public_user = PublicUser {
+                id: user.id,
+                first_name: user.first_name,
+                last_name: user.last_name,
+                rib: user.rib,
+                email_paypal: user.email_paypal,
+                tel_wero: user.tel_wero,
+                profil_pict_ref: user.profil_pict_ref,
+            };
+            Ok(UserWithStatus {
+                user: public_user,
+                status: group_user.status,
+            })
+        } else {
+            Err((Status::NotFound, "User not found in this group".to_string()))
+        }
+    } else {
+        Err((Status::Forbidden, "You are not a member of this group".to_string()))
+    }
+}
+
+pub fn update_user_in_group_service(group_id: &i32, user_id: &i32, status: &i32, authenticated_user: &AuthenticatedUser) -> Result<String, (Status, String)> {
+    if is_user_member_of_group(group_id, *user_id){
+        let group_users = match get_users_group(&group_id) {
+            Ok(users) => users,
+            Err(e) => return Err(e),
+        };
+        if user_is_admin_of_group(&group_users, authenticated_user) {
+            if *status >= 2 && *status <= 5 {
+                match group_repository::update_user_status_in_group(user_id, &status) {
+                    Ok(_) => Ok("User updated in group successfully".to_string()),
+                    Err((status, message)) => Err((status, message)),
+                }
+            } else {
+                return Err((Status::Unauthorized, "The participant you tried to update get too many privilege".to_string()));
+            }
+        } else {
+            return Err((Status::Unauthorized, "You are not an admin of this group".to_string()));
+        }
+    } else { return Err((Status::Unauthorized, "User is not a member of this group".to_string())); }
 }

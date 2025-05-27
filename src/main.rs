@@ -88,10 +88,10 @@ fn rocket() -> rocket::Rocket<rocket::Build> {
                 routes::groups::users::get_all_users_in_group,
                 routes::groups::users::add_user_to_group,
 
-                    /*//{user_id}
+                    //{user_id}
                     routes::groups::users::get_user_by_id_in_group, //UserGroup on récupère sont rôle et sont id de user
                     routes::groups::users::update_user_in_group, //Maj de son rôle
-                    routes::groups::users::delete_user_in_group, //Il faudra prévoir la gestion du status de l'utilisateur dans le groupe pour lui permettre de supprimer un utilisateur ou non
+                    /*routes::groups::users::delete_user_in_group, //Il faudra prévoir la gestion du status de l'utilisateur dans le groupe pour lui permettre de supprimer un utilisateur ou non
 
             //expenses
                 routes::groups::expenses::get_all_expenses_in_group,

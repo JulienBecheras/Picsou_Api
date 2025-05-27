@@ -1,7 +1,6 @@
 use chrono::NaiveDateTime;
 use diesel::{AsChangeset, Insertable, Queryable, Selectable, QueryableByName};
 use rocket::serde::{Deserialize, Serialize};
-
 #[derive(Queryable, Selectable, Serialize, Clone, AsChangeset, Deserialize, QueryableByName)]
 #[diesel(table_name = crate::schema::groups_users)]
 #[diesel(check_for_backend(diesel::pg::Pg))]
