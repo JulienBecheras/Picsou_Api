@@ -1,0 +1,3 @@
+ALTER TABLE groups_users
+    DROP CONSTRAINT IF EXISTS fk_user,
+    DROP CONSTRAINT IF EXISTS fk_group;

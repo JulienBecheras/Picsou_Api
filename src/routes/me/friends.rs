@@ -1,12 +1,13 @@
 use rocket::http::Status;
 use rocket::serde::json::Json;
 use crate::auth::AuthenticatedUser;
-use crate::models::friend::Friend;
+use crate::models::friend::{DetailedFriend, Friend};
+use crate::models::user::User;
 use crate::services::friend_service;
 
 // GET /me/friends
 #[get("/friends")]
-pub fn get_my_friends(user: AuthenticatedUser) -> Result<Json<Vec<Friend>>, Status> {
+pub fn get_my_friends(user: AuthenticatedUser) -> Result<Json<Vec<DetailedFriend>>, Status> {
     friend_service::get_friends_for_user(user.user_id)
         .map(Json)
         .map_err(|e| e.0)

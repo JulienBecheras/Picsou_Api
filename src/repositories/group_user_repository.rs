@@ -1,10 +1,13 @@
 use diesel::RunQueryDsl;
+use diesel::ExpressionMethods;
+use diesel::sql_types::Integer;
 use rocket::http::Status;
-use crate::models::group_user::InsertableGroupUser;
+use projet_picsou_api::establish_connection;
+use crate::models::group_user::{GroupUser, InsertableGroupUser};
 use crate::schema::groups_users::dsl::groups_users;
-use crate::repositories::group_repository::get_group_by_id;
 use crate::repositories::user_repository::get_user_by_id;
-
+use diesel::QueryDsl;
+use diesel::SelectableHelper;
 /*
  * Permet l'ajout d'un ou plusieur utilisateur dans le groupe
  * Verfifie si le status des utilisateurs est valide
@@ -19,8 +22,6 @@ pub fn insert_all_user_group( conn: &mut diesel::PgConnection, group_user_entrie
         }
         get_user_by_id(&group_user.id_user)
             .map_err(|e| e)?;
-        get_group_by_id(&group_user.id_group)
-            .map_err(|e| e)?;
         match diesel::insert_into(groups_users).values(group_user.clone()).execute(conn) {
             Ok(count) => total_inserted += count,
             Err(diesel::result::Error::DatabaseError(
@@ -29,4 +30,25 @@ pub fn insert_all_user_group( conn: &mut diesel::PgConnection, group_user_entrie
         }
     }
     Ok(total_inserted)
+}
+
+pub fn get_owner_group (group_id: &i32) -> Result<GroupUser, (Status, String)>{
+    let conn = &mut establish_connection();
+    match diesel::sql_query("SELECT * FROM groups_users WHERE id_group = $1 AND status = $2").bind::<Integer, _>(group_id).bind::<Integer, _>(0).get_result(conn) {
+        Ok(owner) => Ok(owner),
+        Err(diesel::result::Error::NotFound) => Err((Status::NotFound, format!("GroupUser with id {} does not exist", group_id))),
+        Err(_) => Err((Status::InternalServerError, "An internal server error occurred while querying the database".to_string())),
+    }
+}
+
+pub fn get_users_group (group_id: &i32) -> Result<Vec<GroupUser>, (Status, String)>{
+    let conn = &mut establish_connection();
+    match groups_users
+        .filter(crate::schema::groups_users::id_group.eq(group_id))
+        .select(GroupUser::as_select())
+        .load(conn) {
+        Ok(group_users) => Ok(group_users), //If user is found, we return the first element
+        Err(diesel::result::Error::NotFound) => Err((Status::NotFound, format!("There is no GroupUser for the group with id {} ", group_id))),
+        Err(_) => Err((Status::InternalServerError, "An internal server error occurred while querying the database".to_string())),
+    }
 }

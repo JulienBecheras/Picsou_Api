@@ -20,3 +20,30 @@ pub fn create_group(group: Json<GroupWithUser>, authenticated_user: Authenticate
         Err(status) => Err(status),
     }
 }
+
+/**
+Récupère le groupes si l'utilisateur authentifié et membre de celui ci.
+*/
+
+#[get("/", format = "application/json", data = "<group_id>")]
+pub fn get_group_by_id(group_id: Json<i32>, authenticated_user: AuthenticatedUser) -> Result<Json<Group>, (Status, String)> {
+    let group_id = group_id.into_inner();
+    match group_service::get_group_by_id(&group_id, &authenticated_user) {
+        Ok(group) => {
+            Ok(Json(group))
+        }
+        Err(status) => Err(status),
+    }
+}
+
+/**
+Supprime le groupe si l'utilisateur authentifié est le propriétaire du groupe.
+*/
+#[delete("/", format = "application/json", data = "<group_id>")]
+pub fn delete_group(group_id: Json<i32>, authenticated_user: AuthenticatedUser) -> Result<String, (Status, String)> {
+    let group_id = group_id.into_inner();
+    match group_service::delete_group(&group_id, &authenticated_user) {
+        Ok(message) => Ok(message),
+        Err(status) => Err(status),
+    }
+}

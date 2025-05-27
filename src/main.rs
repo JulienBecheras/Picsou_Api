@@ -36,12 +36,16 @@ fn rocket() -> rocket::Rocket<rocket::Build> {
         .mount("/session", routes![routes::session::create_session, routes::session::delete_session])
         .mount("/user", routes![
             routes::user::create_user,
+
                 //{user_id}
                 routes::user::get_user_by_id_route,
+
                     /*//expenses
                     routes::user::expenses::get_all_expenses_with_user,
+
                         //{expense_id}
                         routes::user::expenses::get_expense_by_id_with_user,*/
+
                 //email/{user_email}
                 routes::user::get_user_by_email_route,
         ])
@@ -72,10 +76,11 @@ fn rocket() -> rocket::Rocket<rocket::Build> {
                 routes::groups::expenses::get_expense_by_id,
                 routes::groups::expenses::update_expense,
                 routes::groups::expenses::delete_expense,
+                */
 
             //{group_id}
             routes::groups::get_group_by_id,
-            routes::groups::modify_group, // Il faudra prévoir la gestion du status de l'utilisateur dans le groupe pour lui permettre de modifier des infos ou non
+            /*routes::groups::modify_group, */// Il faudra prévoir la gestion du status de l'utilisateur dans le groupe pour lui permettre de modifier des infos ou non
             routes::groups::delete_group, // Il faudra prévoir la gestion du status de l'utilisateur dans le groupe pour lui permettre de supprimer le groupe ou non
 
                 //users
@@ -85,7 +90,7 @@ fn rocket() -> rocket::Rocket<rocket::Build> {
                     //{user_id}
                     routes::groups::users::get_user_by_id_in_group, //UserGroup on récupère sont rôle et sont id de user
                     routes::groups::users::update_user_in_group, //Maj de son rôle
-                    routes::groups::users::delete_user_in_group, //Il faudra prévoir la gestion du status de l'utilisateur dans le groupe pour lui permettre de supprimer un utilisateur ou non
+                    /*routes::groups::users::delete_user_in_group, //Il faudra prévoir la gestion du status de l'utilisateur dans le groupe pour lui permettre de supprimer un utilisateur ou non
 
             //expenses
                 routes::groups::expenses::get_all_expenses_in_group,

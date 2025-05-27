@@ -7,6 +7,7 @@ use crate::services::user_service;
 pub(crate) mod friends;
 pub(crate) mod friend_requests;
 pub(crate) mod groups;
+
 #[put("/", format = "application/json", data = "<new_user>")]
 pub fn update_user(new_user: Json<User>, authenticated_user: AuthenticatedUser) -> Result<Json<User>, (Status, String)> {
     if authenticated_user.user_id != new_user.id {

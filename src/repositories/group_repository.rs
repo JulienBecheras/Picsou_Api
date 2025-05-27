@@ -3,7 +3,7 @@ use projet_picsou_api::establish_connection;
 use crate::models::group::{Group, InsertableGroup};
 use crate::schema::groups::dsl::{groups, id};
 use diesel::prelude::*;
-
+use crate::schema::groups_users::dsl::{groups_users, id as groups_users_id, status};
 pub fn get_group_by_id(groups_id: &i32) -> Result<Group, (Status, String)> {
     let conn = &mut establish_connection();
 
@@ -24,4 +24,26 @@ pub fn insert_group_transac(conn: &mut PgConnection, group: &InsertableGroup) ->
 pub fn insert_group(group: &InsertableGroup) -> Result<Group, (Status, String)> {
     let conn = &mut establish_connection();
     insert_group_transac(conn, group)
+}
+
+pub fn delete_group(group_id: &i32) -> Result<String, (Status, String)> {
+    let conn = &mut establish_connection();
+    match diesel::delete(groups.filter(id.eq(group_id))).execute(conn) {
+        Ok(0) => Err((Status::NotFound, "Group not found".to_string())),
+        Ok(_) => Ok("Group deleted successfully".to_string()),
+        Err(_) => Err((Status::InternalServerError, "An internal server error occurred while deleting the group".to_string())),
+    }
+}
+
+pub fn update_user_status_in_group(user_group_id: &i32, user_group_status: &i32) -> Result<String, (Status, String)> {
+    let conn = &mut establish_connection();
+
+    match diesel::update(groups_users)
+        .filter(groups_users_id.eq(user_group_id))
+        .set(status.eq(user_group_status))
+        .execute(conn) {
+        Ok(0) => Err((Status::NotFound, "Group user not found".to_string())),
+        Ok(_) => Ok("Group user status updated successfully".to_string()),
+        Err(_) => Err((Status::InternalServerError, "An internal server error occurred while updating the group user status".to_string())),
+    }
 }

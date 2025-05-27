@@ -26,7 +26,7 @@ pub struct InsertableGroup {
 
 // Struct pour les INSERTS sans les champs auto-générés
 #[derive(Deserialize, Clone)]
-pub struct UserWithStatus {
+pub struct UserIdWithStatus {
     pub id_user: i32,
     pub status: i32,
 }
@@ -35,5 +35,5 @@ pub struct UserWithStatus {
 #[derive(Deserialize, Clone)]
 pub struct GroupWithUser {
     pub group: InsertableGroup,
-    pub users: Vec<UserWithStatus>,
+    pub users: Vec<UserIdWithStatus>,
 }

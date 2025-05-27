@@ -2,6 +2,7 @@ use diesel::prelude::*;
 use chrono::NaiveDateTime;
 use rocket::serde::Deserialize;
 use serde::Serialize;
+use crate::models::user::User;
 
 #[derive(Queryable, Selectable, Serialize)]
 #[diesel(table_name = crate::schema::friend_requests)]
@@ -10,6 +11,15 @@ pub struct FriendRequest {
     pub id: i32,
     pub from_user_id: i32,
     pub to_user_id: i32,
+    pub created_at: NaiveDateTime,
+    pub updated_at: NaiveDateTime,
+}
+#[derive(Deserialize, Serialize, Clone)]
+
+pub struct DetailedFriendRequest {
+    pub id: i32,
+    pub from_user: User,
+    pub to_user: User,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
