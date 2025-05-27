@@ -7,7 +7,7 @@ use projet_picsou_api::establish_connection;
 use crate::models::group::{Group, UserIdWithStatus, GroupWithUser}; // à adapter selon l’emplacement
 use crate::models::group_user::{GroupUser, InsertableGroupUser};
 use crate::repositories::user_repository::get_users_by_ids;
-use crate::models::user::UserWithStatus;
+use crate::models::user::{PublicUser, UserWithStatus};
 
 pub fn create_group(group_with_user: &GroupWithUser, authenticated_user: &AuthenticatedUser) -> Result<Group, (Status, String)> {
     match user_is_owner_of_group(&group_with_user.users, authenticated_user) {
@@ -129,8 +129,17 @@ pub fn get_users_group_service(group_id: &i32, authenticated_user: &Authenticate
 
         let mut list_users_with_status: Vec<UserWithStatus> = Vec::new();
         for user in users {
+            let mut public_user : PublicUser = PublicUser{
+                id: user.id,
+                first_name: user.first_name,
+                last_name: user.last_name,
+                rib: user.rib,
+                email_paypal: user.email_paypal,
+                tel_wero: user.tel_wero,
+                profil_pict_ref: user.profil_pict_ref,
+            };
             let user_with_status : UserWithStatus = UserWithStatus {
-                user : user.clone(),
+                user : public_user,
                 status: group_users.iter()
                     .find(|gu| gu.id_user == user.id)
                     .map(|gu| gu.status)
