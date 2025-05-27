@@ -2,7 +2,8 @@ use rocket::http::Status;
 use rocket::serde::json::Json;
 use crate::auth::AuthenticatedUser;
 use crate::models::friend::{Friend};
-use crate::models::friend_request::{FriendRequest, InsertableFriendRequest};
+use crate::models::friend_request::{DetailedFriendRequest, FriendRequest, InsertableFriendRequest};
+use crate::models::user::User;
 use crate::services::friend_service;
 
 
@@ -21,7 +22,7 @@ pub fn create_friend_request(user: AuthenticatedUser, request: Json<InsertableFr
 
 // GET /me/friends/requests
 #[get("/friends/requests")]
-pub fn get_my_friend_requests(user: AuthenticatedUser) -> Result<Json<Vec<FriendRequest>>, Status> {
+pub fn get_my_friend_requests(user: AuthenticatedUser) -> Result<Json<Vec<DetailedFriendRequest>>, Status> {
     friend_service::get_friend_requests_for_user(user.user_id)
         .map(Json)
         .map_err(|e| e.0)

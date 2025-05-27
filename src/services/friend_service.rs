@@ -1,14 +1,15 @@
 use rocket::http::Status;
 use crate::repositories::friend_repository;
-use crate::models::friend::{Friend, InsertableFriend};
-use crate::models::friend_request::{FriendRequest, InsertableFriendRequest};
+use crate::models::friend::{DetailedFriend, Friend, InsertableFriend};
+use crate::models::friend_request::{DetailedFriendRequest, FriendRequest, InsertableFriendRequest};
+use crate::models::user::User;
 use crate::repositories::friend_repository::get_friend_request_by_id;
 
 /// Vérifie si deux utilisateurs sont amis
 pub fn are_they_friends(user1_id: i32, user2_id: i32) -> Result<bool, (Status, String)> {
     match friend_repository::get_friends_for_user(user1_id) {
         Ok(friends) => {
-            if friends.iter().any(|friend| friend.user2_id == user2_id || friend.user1_id == user2_id) {
+            if friends.iter().any(|friend| friend.user2.id == user2_id) {
                 Ok(true)
             } else {
                 Ok(false)
@@ -19,25 +20,23 @@ pub fn are_they_friends(user1_id: i32, user2_id: i32) -> Result<bool, (Status, S
 }
 
 /// Vérifie si deux utilisateurs ont une demande d'amis en cours
-pub fn are_they_friends_request(user1_id: i32, user2_id: i32) -> Result<bool, (Status, String)> {
-    match friend_repository::get_friend_requests_for_user(user1_id) {
+pub fn are_they_friends_request(from_user_id: i32, to_user_id: i32) -> Result<bool, (Status, String)> {
+    match friend_repository::get_friend_requests_for_user(from_user_id) {
         Ok(friends) => {
-            if friends.iter().any(|friend| friend.to_user_id == user2_id || friend.from_user_id == user2_id) {
+            if friends.iter().any(|friend| friend.id == from_user_id || friend.id == to_user_id) {
                 Ok(true)
             } else {
-                Ok(false)
+                match friend_repository::get_friend_requests_for_user(to_user_id) {
+                    Ok(friends) => {
+                        if friends.iter().any(|friend| friend.id == from_user_id || friend.id == to_user_id) {
+                            Ok(true)
+                        } else {
+                            Ok(false)
+                        }
+                    }
+                    Err(e) => Err(e),
+                }
             }
-        }
-        Err(e) => Err(e),
-    }
-}
-
-/// Trouve une demande d'amis spécifique entre deux utilisateurs
-pub fn find_friend_request(from_user_id: i32, to_user_id: i32) -> Result<FriendRequest, (Status, String)> {
-    match friend_repository::get_friend_requests_for_user(from_user_id) {
-        Ok(requests) => {
-            requests.into_iter().find(|request| request.to_user_id == to_user_id && request.from_user_id == from_user_id)
-                .ok_or((Status::NotFound, "Demande d'amis non trouvée".to_string()))
         }
         Err(e) => Err(e),
     }
@@ -125,11 +124,11 @@ pub fn accept_friend_request(
 
 
 // Récupérer toutes les demandes d'amis pour un utilisateur
-pub fn get_friend_requests_for_user(user_id: i32) -> Result<Vec<FriendRequest>, (Status, String)> {
+pub fn get_friend_requests_for_user(user_id: i32) -> Result<Vec<DetailedFriendRequest>, (Status, String)> {
     friend_repository::get_friend_requests_for_user(user_id)
 }
 
 // Récupérer tous les amis d'un utilisateur
-pub fn get_friends_for_user(user_id: i32) -> Result<Vec<Friend>, (Status, String)> {
+pub fn get_friends_for_user(user_id: i32) -> Result<Vec<DetailedFriend>, (Status, String)> {
     friend_repository::get_friends_for_user(user_id)
 }
