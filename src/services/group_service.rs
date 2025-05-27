@@ -1,7 +1,7 @@
 use diesel::Connection;
 use rocket::http::Status;
 use crate::auth::AuthenticatedUser;
-use crate::repositories::{group_repository, group_user_repository};
+use crate::repositories::{group_repository};
 use crate::repositories::group_user_repository::{insert_all_user_group, get_users_group, get_owner_group};
 use projet_picsou_api::establish_connection;
 use crate::models::group::{Group, UserIdWithStatus, GroupWithUser}; // à adapter selon l’emplacement
