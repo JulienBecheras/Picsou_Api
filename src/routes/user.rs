@@ -1,6 +1,6 @@
 pub(crate) mod expenses;
 
-use rocket::http::Status;
+use rocket::http::{Cookie, CookieJar, Status};
 use rocket::serde::json::Json;
 use crate::auth::AuthenticatedUser;
 use crate::models::user::{InsertableUser, User};
@@ -29,11 +29,15 @@ pub fn get_user_by_email_route(email: &str, _authenticated_user: AuthenticatedUs
 
 
 #[post("/", format = "application/json", data = "<insertable_user>")]
-pub fn create_user(insertable_user: Json<InsertableUser>) -> Result<Json<(User, String)>, (Status, String)> {
+pub fn create_user(insertable_user: Json<InsertableUser>,  cookies: &CookieJar<'_>) -> Result<Json<User>, (Status, String)> {
     let insertable_user_entity = insertable_user.into_inner();
     match user_service::create_user(&insertable_user_entity) {
-        Ok(auth_user) => {
-            Ok(Json(auth_user))
+        Ok((user, token)) => {
+            let mut cookie = Cookie::new("token", token);
+            cookie.set_http_only(true);
+            cookie.set_same_site(rocket::http::SameSite::Lax);
+            cookies.add(cookie);
+            Ok(Json(user))
         }
         Err(status) => Err(status),
     }

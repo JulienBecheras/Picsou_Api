@@ -18,21 +18,26 @@ pub fn create_session(
 ) -> Result<Json<User>, (Status, String)> {
     match session_service::create_session(&login_request.email, &login_request.password) {
         Ok((user, token)) => {
-            cookies.add(Cookie::build(token)
-                .http_only(true)
-                .same_site(rocket::http::SameSite::Lax)
-                .build());
+            let mut cookie = Cookie::new("token", token);
+            cookie.set_http_only(true);
+            cookie.set_same_site(rocket::http::SameSite::Lax);
+            cookies.add(cookie);
             Ok(Json(user))
         }
         Err(status) => Err(status),
     }
 }
 
-#[delete("/", format = "application/json")]
-pub fn delete_session(authenticated_user: AuthenticatedUser) -> Result<String, (Status, String)> {
-    Ok(
-        format!("Cannot delete session of userid {} from server, please delete the session from the client", authenticated_user.user_id)
-    )
+#[delete("/")]
+pub fn delete_session(
+    authenticated_user: AuthenticatedUser,
+    cookies: &CookieJar<'_>
+) -> Result<String, (Status, String)> {
+    cookies.remove(Cookie::named("token"));
+    Ok(format!(
+        "Session supprimée pour l'utilisateur {}",
+        authenticated_user.user_id
+    ))
 }
 
 

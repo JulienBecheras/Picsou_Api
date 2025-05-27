@@ -5,6 +5,7 @@ use crate::models::user::User;
 use crate::services::user_service;
 
 pub(crate) mod friends;
+pub(crate) mod friend_requests;
 pub(crate) mod groups;
 
 #[put("/", format = "application/json", data = "<new_user>")]

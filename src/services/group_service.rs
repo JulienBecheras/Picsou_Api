@@ -78,10 +78,10 @@ pub fn is_user_member_of_group(group_id: &i32, user_id: i32) -> bool {
                     return true;
                 }
             }
-            return false;
+            false
 
         }
-        Err(_) => return false, // If we can't find the owner, assume not a member
+        Err(_) => false, 
     }
 }
 
