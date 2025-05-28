@@ -10,7 +10,7 @@ use crate::models::participant::{Participant, ParticipantUserWithStatus};
 use crate::models::refund::Refund;
 use crate::models::user::UserWithStatus;
 use crate::repositories::expense_repository;
-use crate::services::group_service::{is_user_member_of_group, get_users_group_service};
+use crate::services::group_service::{is_user_member_of_group, get_users_group_service, get_all_groups_service};
 
 /*pub fn create_expense_service(mut insertable_expense: InsertableExpense) -> Result<Expense, (rocket::http::Status, String)> {
     let mut conn = establish_connection();
@@ -189,4 +189,26 @@ pub fn participant_to_participant_user_status(users: &Vec<UserWithStatus>, parti
         }
     }
     participant_with_status
+}
+
+pub fn get_all_expenses_service(authenticated_user: &AuthenticatedUser) -> Result<Vec<DetailExpense>, (Status, String)> {
+    let groups = match get_all_groups_service(&authenticated_user){
+        Ok(groups) => groups,
+        Err(e) => return Err(e),
+    };
+
+    let mut all_expenses: Vec<DetailExpense> = vec![];
+
+    for group in groups {
+        all_expenses.append(&mut match get_all_expenses_group(&group.id, authenticated_user){
+            Ok(expenses) => {
+                expenses
+            },
+            Err(e) => {
+                return Err(e);
+            }
+        });
+    }
+
+    Ok(all_expenses)
 }
