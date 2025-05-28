@@ -49,8 +49,8 @@ pub fn get_friend_requests_for_user(user_id: i32) -> Result<Vec<DetailedFriendRe
     use crate::schema::users::dsl as users_dsl;
     let conn = &mut establish_connection();
 
-    // Récupère les demandes avec le from_user
-    let requests = fr_dsl::friend_requests
+    // Demandes où user_id est le destinataire
+    let requests_to = fr_dsl::friend_requests
         .inner_join(users_dsl::users.on(users_dsl::id.eq(fr_dsl::from_user_id)))
         .filter(fr_dsl::to_user_id.eq(user_id))
         .select((
@@ -62,11 +62,27 @@ pub fn get_friend_requests_for_user(user_id: i32) -> Result<Vec<DetailedFriendRe
             fr_dsl::updated_at,
         ))
         .load::<(i32, i32, i32, User, chrono::NaiveDateTime, chrono::NaiveDateTime)>(conn)
-        .map_err(|_| (Status::InternalServerError, "Erreur lors de la récupération des demandes d'amis".to_string()))?;
+        .map_err(|_| (Status::InternalServerError, "Erreur lors de la récupération des demandes d'amis (to_user)".to_string()))?;
 
-    // Pour chaque demande, on récupère le to_user
+    // Demandes où user_id est l'expéditeur
+    let requests_from = fr_dsl::friend_requests
+        .inner_join(users_dsl::users.on(users_dsl::id.eq(fr_dsl::to_user_id)))
+        .filter(fr_dsl::from_user_id.eq(user_id))
+        .select((
+            fr_dsl::id,
+            fr_dsl::from_user_id,
+            fr_dsl::to_user_id,
+            users_dsl::users::all_columns(),
+            fr_dsl::created_at,
+            fr_dsl::updated_at,
+        ))
+        .load::<(i32, i32, i32, User, chrono::NaiveDateTime, chrono::NaiveDateTime)>(conn)
+        .map_err(|_| (Status::InternalServerError, "Erreur lors de la récupération des demandes d'amis (from_user)".to_string()))?;
+
     let mut detailed_requests = Vec::new();
-    for (id, from_user_id, to_user_id, from_user, created_at, updated_at) in requests {
+
+    // user_id est le destinataire
+    for (id, from_user_id, to_user_id, from_user, created_at, updated_at) in requests_to {
         let to_user = users_dsl::users
             .filter(users_dsl::id.eq(to_user_id))
             .first::<User>(conn)
@@ -79,6 +95,22 @@ pub fn get_friend_requests_for_user(user_id: i32) -> Result<Vec<DetailedFriendRe
             updated_at,
         });
     }
+
+    // user_id est l'expéditeur
+    for (id, from_user_id, to_user_id, to_user, created_at, updated_at) in requests_from {
+        let from_user = users_dsl::users
+            .filter(users_dsl::id.eq(from_user_id))
+            .first::<User>(conn)
+            .map_err(|_| (Status::InternalServerError, "Erreur lors de la récupération de l'expéditeur".to_string()))?;
+        detailed_requests.push(DetailedFriendRequest {
+            id,
+            from_user,
+            to_user,
+            created_at,
+            updated_at,
+        });
+    }
+
     Ok(detailed_requests)
 }
 // Récupérer tous les amis d'un utilisateur

@@ -21,35 +21,30 @@ pub fn are_they_friends(user1_id: i32, user2_id: i32) -> Result<bool, (Status, S
 
 /// Vérifie si deux utilisateurs ont une demande d'amis en cours
 pub fn are_they_friends_request(from_user_id: i32, to_user_id: i32) -> Result<bool, (Status, String)> {
+    //On veut savoir si l'un des deux utilisateurs a envoyé une demande d'amis à l'autre
     match friend_repository::get_friend_requests_for_user(from_user_id) {
+        // Si l'une des requetes d'amis emises a l'intention de to_user_id à été émise par from_user_id, alors on est amis
         Ok(friends) => {
-            if friends.iter().any(|friend| friend.id == from_user_id || friend.id == to_user_id) {
+            if friends.iter().any(|friend| friend.from_user.id == to_user_id || friend.to_user.id == to_user_id) {
                 Ok(true)
             } else {
-                match friend_repository::get_friend_requests_for_user(to_user_id) {
-                    Ok(friends) => {
-                        if friends.iter().any(|friend| friend.id == from_user_id || friend.id == to_user_id) {
-                            Ok(true)
-                        } else {
-                            Ok(false)
-                        }
-                    }
-                    Err(e) => Err(e),
-                }
+                Ok(false)
             }
         }
         Err(e) => Err(e),
     }
+
 }
+
 
 /// Crée une nouvelle demande d'amis. On vérifie d'abord si les utilisateurs sont déjà amis ou s'ils ont déjà une demande d'amis en cours.
 pub fn create_friend_request(request: &InsertableFriendRequest) -> Result<FriendRequest, (Status, String)> {
-    match are_they_friends(request.from_user_id, request.to_user_id) { 
+    match are_they_friends(request.from_user_id, request.to_user_id) {
         Ok(areFriends) => {
             if areFriends {
                 Err((Status::BadRequest, "Vous êtes déjà amis".to_string()))
             } else {
-                match are_they_friends_request(request.from_user_id, request.to_user_id) { 
+                match are_they_friends_request(request.from_user_id, request.to_user_id) {
                     Ok(areFriendRequests) => {
                         if areFriendRequests {
                             Err((Status::Conflict, "Vous avez déjà envoyé une demande d'amis".to_string()))
@@ -95,7 +90,7 @@ pub fn delete_friend(user_id: i32, friend_id: i32) -> Result<(), (Status, String
 /// Accepte une demande d'amis. On vérifie d'abord si la demande d'amis existe et si l'utilisateur est bien le destinataire de la demande.
 pub fn accept_friend_request(
     request_id: i32,
-    user_id: i32
+    user_id: i32,
 ) -> Result<Friend, (Status, String)> {
     match get_friend_request_by_id(request_id) {
         Ok(request) => {
@@ -120,7 +115,6 @@ pub fn accept_friend_request(
         Err(e) => Err(e),
     }
 }
-
 
 
 // Récupérer toutes les demandes d'amis pour un utilisateur
