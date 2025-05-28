@@ -1,3 +1,4 @@
+use crate::schema::groups_users::id_user;
 use rocket::http::Status;
 use projet_picsou_api::establish_connection;
 use crate::models::group::{Group, InsertableGroup};
@@ -45,5 +46,18 @@ pub fn update_user_status_in_group(user_group_id: &i32, user_group_status: &i32)
         Ok(0) => Err((Status::NotFound, "Group user not found".to_string())),
         Ok(_) => Ok("Group user status updated successfully".to_string()),
         Err(_) => Err((Status::InternalServerError, "An internal server error occurred while updating the group user status".to_string())),
+    }
+}
+
+pub fn get_all_groups_user_repository(user_id: &i32) -> Result<Vec<Group>, (Status, String)> {
+    let conn = &mut establish_connection();
+    
+    match groups_users
+        .inner_join(groups)
+        .filter(id_user.eq(user_id))
+        .select(groups::all_columns())
+        .load::<Group>(conn)  {
+        Ok(found_groups) => Ok(found_groups),
+        Err(_) => Err((Status::NotFound, "Group user not found".to_string())),
     }
 }

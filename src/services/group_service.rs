@@ -254,3 +254,10 @@ pub fn update_user_in_group_service(group_id: &i32, user_id: &i32, status: &i32,
         }
     } else { return Err((Status::Unauthorized, "User is not a member of this group".to_string())); }
 }
+
+pub fn get_all_groups_service(authenticated_user: &AuthenticatedUser) -> Result<Vec<Group>, (Status, String)> {
+    match group_repository::get_all_groups_user_repository(&authenticated_user.user_id) {
+        Ok(groups) => Ok(groups),
+        Err(e) => Err(e),
+    }
+}
