@@ -85,6 +85,21 @@ pub fn is_user_member_of_group(group_id: &i32, user_id: i32) -> bool {
     }
 }
 
+pub fn is_user_member_of_group_get_status(group_id: &i32, user_id: i32) -> Result<i32, (Status, String)> {
+    match get_users_group(group_id) {
+        Ok(group_users) => {
+            for groups_user in group_users {
+                if groups_user.id_user == user_id {
+                    return Ok(groups_user.status);
+                }
+            }
+            return Ok(-1);
+
+        }
+        Err(e) => Err(e)
+    }
+}
+
 pub fn delete_group(group_id: &i32, authenticated_user: &AuthenticatedUser) -> Result<String, (Status, String)> {
     match group_repository::get_group_by_id(group_id) {
         Ok(_) => {
@@ -143,7 +158,11 @@ pub fn get_users_group_service(group_id: &i32, authenticated_user: &Authenticate
                 status: group_users.iter()
                     .find(|gu| gu.id_user == user.id)
                     .map(|gu| gu.status)
-                    .unwrap_or(5), // 1 si non trouvé, à adapter selon ta logique              , // Default status to 1 if not found
+                    .unwrap_or(5),
+                group_user_id: group_users.iter()
+                    .find(|gu| gu.id_user == user.id)
+                    .map(|gu| gu.id)
+                    .unwrap_or(5),
             };
             list_users_with_status.push(user_with_status);
         }
@@ -205,6 +224,7 @@ pub fn get_user_by_id_in_group_service(group_id: &i32, user_id: &i32, authentica
             Ok(UserWithStatus {
                 user: public_user,
                 status: group_user.status,
+                group_user_id: group_user.id,
             })
         } else {
             Err((Status::NotFound, "User not found in this group".to_string()))
