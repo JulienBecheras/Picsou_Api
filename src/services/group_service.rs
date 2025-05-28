@@ -4,7 +4,7 @@ use crate::auth::AuthenticatedUser;
 use crate::repositories::{group_repository};
 use crate::repositories::group_user_repository::{insert_all_user_group, get_users_group, get_owner_group};
 use projet_picsou_api::establish_connection;
-use crate::models::group::{Group, UserIdWithStatus, GroupWithUser}; // à adapter selon l’emplacement
+use crate::models::group::{Group, UserIdWithStatus, GroupWithUser, UpdatableGroup}; // à adapter selon l’emplacement
 use crate::models::group_user::{GroupUser, InsertableGroupUser};
 use crate::repositories::user_repository::get_users_by_ids;
 use crate::models::user::{PublicUser, UserWithStatus};
@@ -259,5 +259,20 @@ pub fn get_all_groups_service(authenticated_user: &AuthenticatedUser) -> Result<
     match group_repository::get_all_groups_user_repository(&authenticated_user.user_id) {
         Ok(groups) => Ok(groups),
         Err(e) => Err(e),
+    }
+}
+
+pub fn modify_group_service(group_id: &i32, group: &UpdatableGroup, authenticated_user: &AuthenticatedUser) -> Result<Group, (Status, String)> {
+    let group_users = match get_users_group(group_id) {
+        Ok(users) => users,
+        Err(e) => return Err(e),
+    };
+    if user_is_admin_of_group(&group_users, authenticated_user) {
+        match group_repository::update_group(group_id, group) {
+            Ok(updated_group) => Ok(updated_group),
+            Err(e) => Err(e),
+        }
+    } else {
+        Err((Status::Forbidden, "You are not the owner of this group".to_string()))
     }
 }

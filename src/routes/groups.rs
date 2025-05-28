@@ -2,7 +2,7 @@ use rocket::http::Status;
 use rocket::serde::json::Json;
 use crate::auth::AuthenticatedUser;
 use crate::services::group_service;
-use crate::models::group::{Group, GroupWithUser};
+use crate::models::group::{Group, GroupWithUser, UpdatableGroup};
 
 pub(crate) mod expenses;
 pub(crate) mod users;
@@ -42,6 +42,18 @@ Supprime le groupe si l'utilisateur authentifié est le propriétaire du groupe.
 pub fn delete_group(group_id: i32, authenticated_user: AuthenticatedUser) -> Result<String, (Status, String)> {
     match group_service::delete_group(&group_id, &authenticated_user) {
         Ok(message) => Ok(message),
+        Err(status) => Err(status),
+    }
+}
+
+/**
+Met à jour le groupe si l'utilisateur authentifié est le propriétaire ou l'admin du groupe.
+*/
+#[put("/<group_id>", format = "application/json", data = "<group>")]
+pub fn modify_group(group_id: i32, group: Json<UpdatableGroup>, authenticated_user: AuthenticatedUser) -> Result<Json<Group>, (Status, String)> {
+    let group_to_update = group.into_inner();
+    match group_service::modify_group_service(&group_id, &group_to_update, &authenticated_user) {
+        Ok(updated_group) => Ok(Json(updated_group)),
         Err(status) => Err(status),
     }
 }
