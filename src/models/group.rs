@@ -38,3 +38,10 @@ pub struct GroupWithUser {
     pub group: InsertableGroup,
     pub users: Vec<UserIdWithStatus>,
 }
+
+#[derive(Insertable, Deserialize, Clone, Serialize, AsChangeset)]
+#[diesel(table_name = crate::schema::groups)]
+pub struct UpdatableGroup {
+    pub name: Option<String>,
+    pub pict_ref: Option<String>,
+}

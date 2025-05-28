@@ -80,7 +80,7 @@ fn rocket() -> rocket::Rocket<rocket::Build> {
 
             //{group_id}
             routes::groups::get_group_by_id,
-            /*routes::groups::modify_group, */// Il faudra prévoir la gestion du status de l'utilisateur dans le groupe pour lui permettre de modifier des infos ou non
+            routes::groups::modify_group, // Il faudra prévoir la gestion du status de l'utilisateur dans le groupe pour lui permettre de modifier des infos ou non
             routes::groups::delete_group, // Il faudra prévoir la gestion du status de l'utilisateur dans le groupe pour lui permettre de supprimer le groupe ou non
 
                 //users
