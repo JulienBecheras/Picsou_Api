@@ -40,6 +40,7 @@ pub struct InsertableUser {
 pub struct UserWithStatus {
     pub user: PublicUser,
     pub status: i32,
+    pub group_user_id: i32,
 }
 
 #[derive(Deserialize, Clone, Serialize)]

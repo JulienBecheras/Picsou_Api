@@ -92,9 +92,9 @@ fn rocket() -> rocket::Rocket<rocket::Build> {
                     routes::groups::users::update_user_in_group, //Maj de son rôle
                     /*routes::groups::users::delete_user_in_group, //Il faudra prévoir la gestion du status de l'utilisateur dans le groupe pour lui permettre de supprimer un utilisateur ou non
 
-            //expenses
+            *///expenses
                 routes::groups::expenses::get_all_expenses_in_group,
-                routes::groups::expenses::create_expense_to_group, //Il faudra prévoir la gestion du status de l'utilisateur dans le groupe pour lui permettre de créer une dépense ou non
+               /* routes::groups::expenses::create_expense_to_group, //Il faudra prévoir la gestion du status de l'utilisateur dans le groupe pour lui permettre de créer une dépense ou non
 
                     //{expense_id}
                     routes::groups::expenses::get_expense_by_id_in_group,

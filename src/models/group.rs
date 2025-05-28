@@ -14,9 +14,10 @@ pub struct Group {
 }
 
 // Struct pour les INSERTS sans les champs auto-générés
-#[derive(Insertable, Deserialize, Clone)]
+#[derive(Insertable, Deserialize, Clone, Serialize)]
 #[diesel(table_name = crate::schema::groups)]
 pub struct InsertableGroup {
+    pub id: Option<i32>,
     pub name: String,
     pub pict_ref: String,
     pub created_at: NaiveDateTime,

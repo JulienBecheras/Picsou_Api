@@ -1,9 +1,10 @@
 pub mod friend;
 pub mod user;
 pub mod server_error_response;
-mod expense;
-mod contributor;
-mod participant;
+pub mod expense;
+pub mod contributor;
+pub mod participant;
 pub(crate) mod group;
 pub(crate) mod group_user;
 pub mod friend_request;
+pub mod refund;
