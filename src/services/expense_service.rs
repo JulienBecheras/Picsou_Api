@@ -63,7 +63,7 @@ pub fn normalize_detail_expenses_flat(list_detail_expenses_flat: &Vec<DetailExpe
         id: Some(first_expense.group_id),
         name: first_expense.group_name.clone(),
         pict_ref: first_expense.pict_ref.clone(),
-        created_at: first_expense.created_at,
+        created_at: Some(first_expense.created_at),
     };
 
     let group_id = group.id.ok_or_else(|| {
@@ -211,4 +211,28 @@ pub fn get_all_expenses_service(authenticated_user: &AuthenticatedUser) -> Resul
     }
 
     Ok(all_expenses)
+}
+
+pub fn get_expense_by_id(group_id: &i32, expense_id: &i32, authenticated_user: &AuthenticatedUser) -> Result<DetailExpense, (Status, String)> {
+    let expenses = match expense_repository::get_expenses_by_id(expense_id) {
+        Ok(expenses) => expenses,
+        Err(e) => return Err(e),
+    };
+    
+    if expenses.first().unwrap().group_id != *group_id{
+        return Err((Status::BadRequest, "Expense does not belong to the specified group".to_string()));
+    }
+    
+    if is_user_member_of_group(&expenses.first().unwrap().group_id, authenticated_user.user_id) { 
+        match normalize_detail_expenses_flat(&expenses, authenticated_user) {
+            Ok(detail_expenses) => {
+                if let Some(expense) = detail_expenses.first() {
+                    Ok(expense.clone())
+                } else {
+                    Err((Status::NotFound, "Expense not found".to_owned()))
+                }
+            },
+            Err(e) => Err(e),
+        }
+    }else { Err((Status::Unauthorized, "User is not a member of the group".to_string())) }
 }
