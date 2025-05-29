@@ -324,14 +324,19 @@ pub fn create_expense_to_group_service(group_id: &i32, insertable_detail_expense
                 }
                 if users_groups[i].status >= 0 && users_groups[i].status <= 4 {
                     // Si le participant est aussi contributeur, on crée un remboursement pour lui
-                    if participant_is_contributor(&insertable_detail_expense.participants, &insertable_detail_expense.contributors) {
-                        refunds_list.push(InsertableRefund {
-                            amount: insertable_participant.amount_participated,
-                            contributors_id: insertable_participant.groups_users_id,
-                            participants_id: insertable_participant.groups_users_id,
-                            status: "completed".to_string(),
-                            created_at: None,
-                        });
+                    match participant_is_contributor(insertable_participant, &insertable_detail_expense.contributors){
+                        Ok(montant) => {
+                            refunds_list.push(InsertableRefund {
+                                amount: calculate_amount(&montant, &insertable_participant.amount_participated),
+                                contributors_id: insertable_participant.groups_users_id,
+                                participants_id: insertable_participant.groups_users_id,
+                                status: "completed".to_string(),
+                                created_at: None,
+                            });
+                        },
+                        Err(_) => {
+                            // Si le participant n'est pas contributeur, on ne fait rien
+                        }
                     }
                     if insertable_participant.amount_participated < 0.0 {
                         return Err((Status::BadRequest, "Participant amount must be positive".to_string()));
@@ -394,13 +399,22 @@ pub fn is_contributor_contain_duplicate(contributors: &Vec<InsertableContributor
     false
 }
 
-pub fn participant_is_contributor(participants: &Vec<InsertableParticipant>, contributors: &Vec<InsertableContributor>) -> bool {
-    for participant in participants {
-        if contributors.iter().any(|c| c.groups_users_id == participant.groups_users_id) {
-            return true;
+pub fn calculate_amount(contributed: &f64, participated: &f64) -> f64 {
+    if contributed > participated {
+        return *participated;
+    } else if contributed < participated {
+        return *contributed;
+    }
+    0.0
+}
+
+pub fn participant_is_contributor(participant: &InsertableParticipant, contributors: &Vec<InsertableContributor>) -> Result<f64, bool> {
+    for contributor in contributors {
+        if contributor.groups_users_id == participant.groups_users_id {
+            return Ok(contributor.amount_contributed)
         }
     }
-    false
+    return Err(false);
 }
 
 /**
@@ -438,19 +452,16 @@ pub fn add_detail_expense_service(expense: &InsertableExpense, contributors: &Ve
         let mut refunds = refunds.clone();
 
         for refund in &mut refunds {
-            let contributor = contributors.iter().find(|c| c.groups_users_id == refund.contributors_id);
-            let participant = participants.iter().find(|p| p.groups_users_id == refund.participants_id);
-
-            if let Some(contributor) = contributor {
-                refund.contributors_id = contributor.id;
-            } else {
-                return Err(diesel::result::Error::RollbackTransaction);
+            for contributor in contributors.clone() {
+                if refund.contributors_id == contributor.groups_users_id { 
+                    refund.contributors_id = contributor.id;
+                }
             }
-
-            if let Some(participant) = participant {
-                refund.participants_id = participant.id;
-            } else {
-                return Err(diesel::result::Error::RollbackTransaction);
+            
+            for participant in participants.clone() {
+                if refund.participants_id == participant.groups_users_id { 
+                    refund.participants_id = participant.id;
+                }
             }
         }
 
