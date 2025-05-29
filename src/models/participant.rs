@@ -1,4 +1,3 @@
-use chrono::NaiveDateTime;
 use diesel::{AsChangeset, Insertable, Queryable, Selectable};
 use rocket::serde::{Deserialize, Serialize};
 use crate::models::user::PublicUser;
@@ -9,18 +8,18 @@ use crate::models::user::PublicUser;
 pub struct Participant {
     pub id: i32,
     pub amount_participated: f64,
-    pub groups_users_id: i32,
     pub part_number: Option<i32>,
     pub expenses_id: i32,
+    pub groups_users_id: i32,
 }
 
-#[derive(Insertable, Deserialize, Clone)]
+#[derive(Insertable, Deserialize, Clone, Serialize)]
 #[diesel(table_name = crate::schema::participants)]
 pub struct InsertableParticipant {
     pub amount_participated: f64,
-    pub groups_users_id: i32,
     pub part_number: Option<i32>,
-    pub expenses_id: i32,
+    pub expenses_id: Option<i32>,
+    pub groups_users_id: i32,
 }
 
 #[derive(Deserialize, Clone, Serialize)]

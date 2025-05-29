@@ -14,12 +14,12 @@ pub struct Contributor {
 }
 
 // Struct pour les INSERTS sans les champs auto-générés
-#[derive(Insertable, Deserialize, Clone)]
+#[derive(Insertable, Deserialize, Clone, Serialize)]
 #[diesel(table_name = crate::schema::contributors)]
 pub struct InsertableContributor {
     pub amount_contributed: f64,
     pub groups_users_id: i32,
-    pub expenses_id: i32,
+    pub expenses_id: Option<i32>,
 }
 
 #[derive(Deserialize, Clone, Serialize)]
