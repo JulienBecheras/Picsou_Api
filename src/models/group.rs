@@ -20,7 +20,7 @@ pub struct InsertableGroup {
     pub id: Option<i32>,
     pub name: String,
     pub pict_ref: String,
-    pub created_at: NaiveDateTime,
+    pub created_at: Option<NaiveDateTime>,
 }
 
 

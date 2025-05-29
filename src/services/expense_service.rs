@@ -63,7 +63,7 @@ pub fn normalize_detail_expenses_flat(list_detail_expenses_flat: &Vec<DetailExpe
         id: Some(first_expense.group_id),
         name: first_expense.group_name.clone(),
         pict_ref: first_expense.pict_ref.clone(),
-        created_at: first_expense.created_at,
+        created_at: Some(first_expense.created_at),
     };
 
     let group_id = group.id.ok_or_else(|| {
