@@ -1,20 +1,15 @@
 use diesel::prelude::*;
 use rocket::http::Status;
 use projet_picsou_api::establish_connection;
-use crate::models::contributor::ContributorUserWithStatus;
-use crate::models::expense::{DetailExpenseFlat, Expense};
-use crate::models::group::InsertableGroup;
-use crate::models::participant::ParticipantUserWithStatus;
-use crate::models::refund::Refund;
+use crate::models::expense::{DetailExpenseFlat, Expense, InsertableExpense};
 use diesel::sql_types::{Int4};
-/*pub fn insert_expense_repository(insertable_expense: InsertableExpense) -> Result<Expense, (Status, String)> {
-    let conn = &mut establish_connection();
-
+use crate::schema::expenses::dsl::{expenses};
+pub fn insert_expense_repository(insertable_expense: InsertableExpense, conn: &mut diesel::PgConnection) -> Result<Expense, (Status, String)> {
     match diesel::insert_into(expenses).values(&insertable_expense).get_result::<Expense>(conn) {
         Ok(expense) => Ok(expense),
         Err(_) => Err((Status::InternalServerError, "An internal server error occurred while querying the database".to_string())),
     }
-}*/
+}
 
 pub fn get_expenses_by_group_id(group_id: &i32) -> Result<Vec<DetailExpenseFlat>, (Status, String)> {
     let conn = &mut establish_connection();

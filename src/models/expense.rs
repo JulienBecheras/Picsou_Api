@@ -2,9 +2,9 @@ use diesel::sql_types::{Timestamp, Int4, Float8, Varchar, Nullable};
 use diesel::prelude::*;
 use chrono::NaiveDateTime;
 use rocket::serde::{Deserialize, Serialize};
-use crate::models::contributor::{ContributorUserWithStatus};
+use crate::models::contributor::{ContributorUserWithStatus, InsertableContributor};
 use crate::models::group::{InsertableGroup};
-use crate::models::participant::ParticipantUserWithStatus;
+use crate::models::participant::{InsertableParticipant, ParticipantUserWithStatus};
 use crate::models::refund::Refund;
 
 #[derive(Queryable, Selectable, Serialize, Clone, AsChangeset, Deserialize)]
@@ -14,21 +14,21 @@ pub struct Expense {
     pub id: i32,
     pub name: String,
     pub description: Option<String>,
-    pub montant: f64,
-    pub stock_parts: i32,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
+    pub montant: f64,
+    pub stock_parts: i32,
 }
 
 // Struct pour les INSERTS sans les champs auto-générés
-#[derive(Insertable, Deserialize, Clone)]
+#[derive(Insertable, Deserialize, Clone, Serialize)]
 #[diesel(table_name = crate::schema::expenses)]
 pub struct InsertableExpense {
     pub name: String,
-    pub description: String,
+    pub description: Option<String>,
+    pub created_at: NaiveDateTime,
     pub montant: f64,
     pub stock_parts: i32,
-    pub created_at: NaiveDateTime,
 }
 
 #[derive(Deserialize, Clone, Serialize)]
@@ -38,6 +38,13 @@ pub struct DetailExpense {
     pub participants: Vec<ParticipantUserWithStatus>,
     pub expense: Expense,
     pub refunds: Vec<Refund>
+}
+
+#[derive(Deserialize, Clone, Serialize)]
+pub struct InsertableDetailExpense {
+    pub contributors: Vec<InsertableContributor>,
+    pub participants: Vec<InsertableParticipant>,
+    pub expense: InsertableExpense,
 }
 
 #[derive(QueryableByName, Debug)]
