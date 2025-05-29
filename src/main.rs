@@ -72,9 +72,9 @@ fn rocket() -> rocket::Rocket<rocket::Build> {
             //expenses
             routes::groups::expenses::get_all_exepenses,
 
-                /*//{expense_id}
+                //{expense_id}
                 routes::groups::expenses::get_expense_by_id,
-                routes::groups::expenses::update_expense,
+                /*routes::groups::expenses::update_expense,
                 routes::groups::expenses::delete_expense,
                 */
 
