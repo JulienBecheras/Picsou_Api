@@ -1,5 +1,5 @@
 use chrono::NaiveDateTime;
-use diesel::{AsChangeset, Insertable, Queryable, Selectable};
+use diesel::{AsChangeset, Insertable, Queryable, Selectable, QueryableByName};
 use rocket::serde::{Deserialize, Serialize};
 
 #[derive(Queryable, Selectable, Serialize, Clone, AsChangeset, Deserialize)]
@@ -25,4 +25,36 @@ pub struct InsertableRefund {
     pub contributors_id: i32,
     pub participants_id: i32,
     pub created_at: Option<NaiveDateTime>,
+}
+#[derive(Deserialize, Clone, Serialize)]
+pub struct BalanceGroup{
+    pub group_id: i32,
+    pub total_cost_group: f64,
+    pub total_cost_user: f64,
+    pub total_contributed_user: f64,
+    pub balance_user: f64,
+}
+
+#[derive(QueryableByName)]
+pub struct TotalCost {
+    #[sql_type = "diesel::sql_types::Nullable<diesel::sql_types::Double>"]
+    pub total_cost: Option<f64>,
+}
+
+#[derive(QueryableByName)]
+pub struct TotalRefundAmount {
+    #[sql_type = "diesel::sql_types::Nullable<diesel::sql_types::Double>"]
+    pub total_refund: Option<f64>,
+}
+
+#[derive(QueryableByName)]
+pub struct TotalParticipated {
+    #[sql_type = "diesel::sql_types::Nullable<diesel::sql_types::Double>"]
+    pub total_participated: Option<f64>,
+}
+
+#[derive(QueryableByName)]
+pub struct TotalContributed {
+    #[sql_type = "diesel::sql_types::Nullable<diesel::sql_types::Double>"]
+    pub total_contributed: Option<f64>,
 }

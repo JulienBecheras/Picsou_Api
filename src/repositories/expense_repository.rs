@@ -3,6 +3,7 @@ use rocket::http::Status;
 use projet_picsou_api::establish_connection;
 use crate::models::expense::{DetailExpenseFlat, Expense, InsertableExpense};
 use diesel::sql_types::{Int4};
+use crate::models::refund::{TotalContributed, TotalCost, TotalParticipated, TotalRefundAmount};
 use crate::schema::expenses::dsl::{expenses};
 pub fn insert_expense_repository(insertable_expense: InsertableExpense, conn: &mut diesel::PgConnection) -> Result<Expense, (Status, String)> {
     match diesel::insert_into(expenses).values(&insertable_expense).get_result::<Expense>(conn) {
@@ -63,3 +64,76 @@ pub fn get_expenses_by_id(group_id: &i32) -> Result<Vec<DetailExpenseFlat>, (Sta
         Err(_) => Err((Status::BadRequest, "No expenses found.".to_string())),
     }
 }
+
+pub fn get_total_cost_group(group_id: i32) -> Result<f64, (Status, String)> {
+    let conn = &mut establish_connection();
+
+    match diesel::sql_query("
+        SELECT ROUND(SUM(e.montant)::numeric, 2)::double precision AS total_cost
+        FROM expenses e
+        JOIN contributors c ON e.id = c.expenses_id
+        JOIN groups_users gu ON c.groups_users_id = gu.id
+        WHERE gu.id_group = $1
+    ")
+    .bind::<Int4, _>(group_id)
+    .get_result::<TotalCost>(conn) {
+        Ok(total_cost) => Ok(total_cost.total_cost.unwrap_or(0.0)),
+        Err(e) => Err((Status::InternalServerError, format!("Erreur Diesel: {:?}", e))),
+    }
+}
+
+pub fn get_total_contributed_user(group_id: i32, user_id: i32) -> Result<f64, (Status, String)> {
+    let conn = &mut establish_connection();
+
+    match diesel::sql_query("
+        SELECT ROUND(SUM(c.amount_contributed)::numeric, 2)::double precision AS total_contributed
+        FROM contributors c
+        JOIN groups_users gu ON c.groups_users_id = gu.id
+        JOIN users u ON gu.id_user = u.id
+        WHERE gu.id_group = $1 AND u.id = $2
+    ")
+    .bind::<Int4, _>(group_id)
+    .bind::<Int4, _>(user_id)
+    .get_result::<TotalContributed>(conn) {
+        Ok(total_contributed) => Ok(total_contributed.total_contributed.unwrap_or(0.0)),
+        Err(e) => Err((Status::InternalServerError, format!("Erreur Diesel: {:?}", e))),    }
+}
+
+pub fn get_total_cost_user(group_id: i32, user_id: i32) -> Result<f64, (Status, String)> {
+    let conn = &mut establish_connection();
+
+    match diesel::sql_query("
+        SELECT ROUND(SUM(p.amount_participated)::numeric, 2)::double precision AS total_participated
+        FROM participants p
+        JOIN groups_users gu ON p.groups_users_id = gu.id
+        JOIN users u ON gu.id_user = u.id
+        WHERE gu.id_group = $1 AND u.id = $2
+    ")
+    .bind::<Int4, _>(group_id)
+    .bind::<Int4, _>(user_id)
+    .get_result::<TotalParticipated>(conn) {
+        Ok(total_cost) => Ok(total_cost.total_participated.unwrap_or(0.0)),
+        Err(_) => Err((Status::InternalServerError, "An internal server error occurred while querying the database".to_string())),
+    }
+}
+
+pub fn get_total_refund_amount(group_id: i32, user_id: i32) -> Result<f64, (Status, String)> {
+    let conn = &mut establish_connection();
+
+    match diesel::sql_query("
+        SELECT ROUND(SUM(r.amount)::numeric, 2)::double precision AS total_refund
+        FROM refunds r
+        JOIN participants p ON r.participants_id = p.id
+        JOIN groups_users gu ON p.groups_users_id = gu.id
+        JOIN users u ON gu.id_user = u.id
+        WHERE gu.id_group = $1 AND u.id = $2
+    ")
+    .bind::<Int4, _>(group_id)
+    .bind::<Int4, _>(user_id)
+    .get_result::<TotalRefundAmount>(conn) {
+        Ok(total_refund) => Ok(total_refund.total_refund.unwrap_or(0.0)),
+        Err(_) => Err((Status::InternalServerError, "An internal server error occurred while querying the database".to_string())),
+    }
+}
+
+// pub fn get_all_refund_between_user()

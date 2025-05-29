@@ -6,6 +6,7 @@ use crate::models::group::{Group, GroupWithUser, UpdatableGroup};
 
 pub(crate) mod expenses;
 pub(crate) mod users;
+pub(crate) mod balance;
 
 /**
 Ajoute un groupe après avoir vérifié que l'utilisateur est bien le propriétaire du groupe.
