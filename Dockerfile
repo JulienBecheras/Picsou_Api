@@ -19,7 +19,7 @@ FROM debian:bookworm-slim
 RUN apt-get update && apt-get install -y libpq-dev ca-certificates && rm -rf /var/lib/apt/lists/*
 
 # Copier le binaire compilé
-COPY --from=builder /app/target/release/projet_picsou_api /usr/local/bin/projet_picsou_api
+COPY --from=builder /app/target/release/projet_picsou_api /usr/local/bin/api
 
 # Expose le port utilisé par ton API
 EXPOSE 8000
