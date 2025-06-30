@@ -22,7 +22,7 @@ RUN apt-get update && apt-get install -y libpq-dev ca-certificates && rm -rf /va
 COPY --from=builder /app/target/release/projet_picsou_api /usr/local/bin/api
 
 # Expose le port utilisé par ton API
-EXPOSE 8000
+EXPOSE 8080
 
 # Lancement de l’API directement (pas de wait-for-it.sh)
 CMD ["api"]
