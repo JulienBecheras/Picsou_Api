@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-
+cd /usr/local/bin/
 
 echo "▶️ Migration de la base de données..."
 diesel migration run --database-url "$DATABASE_URL"
