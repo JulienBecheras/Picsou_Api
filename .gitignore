@@ -2,3 +2,4 @@
 .idea
 .env
 diesel.toml
+docker-compose.dev.yml
