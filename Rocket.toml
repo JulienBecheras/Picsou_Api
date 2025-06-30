@@ -3,4 +3,4 @@ address = "0.0.0.0"
 port = 8000
 
 [global.databases.diesel_postgres]
-url = "postgres://admin:i0h70JmTynW9@localhost:5432/projet_picsou_bdd"
+url = "postgresql://postgres:HVbfRJeSmTXmshelYPPOqOuFpYmIwVfm@postgres.railway.internal:5432/railway"
