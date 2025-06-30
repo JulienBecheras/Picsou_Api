@@ -1,21 +1,28 @@
-# Utiliser l'image Alpine de Rust
-FROM rust:latest
-
-# Installer les dépendances système nécessaires
-RUN apt-get update && apt-get install -y git libpq-dev
+# Étape 1 : build de l'application
+FROM rust:1.77 as builder
 
 WORKDIR /app
 
-# Récuperer les dépendances
-RUN cargo install diesel_cli --no-default-features --features postgres
-
-# Récuperation du projet
+# Copie des fichiers du projet
 COPY . .
 
-# Créer un fichier d'entrée pour le conteneur
-RUN chmod +x wait-for-it.sh
-RUN chmod +x entrypoint.sh
-CMD ["./entrypoint.sh"]
+# Installer libpq-dev pour diesel_postgres
+RUN apt-get update && apt-get install -y libpq-dev pkg-config
 
-# Exposer le port (ajuste le port selon ton API)
+# Compilation en release
+RUN cargo build --release
+
+# Étape 2 : image finale minimale
+FROM debian:bookworm-slim
+
+# Installer les dépendances nécessaires à l'exécution
+RUN apt-get update && apt-get install -y libpq-dev ca-certificates && rm -rf /var/lib/apt/lists/*
+
+# Copier le binaire compilé
+COPY --from=builder /app/target/release/mon-api /usr/local/bin/api
+
+# Expose le port utilisé par ton API
 EXPOSE 8000
+
+# Lancement de l’API directement (pas de wait-for-it.sh)
+CMD ["api"]
