@@ -21,12 +21,19 @@ RUN apt-get update && apt-get install -y libpq-dev ca-certificates && rm -rf /va
 # Copier le binaire compilé
 COPY --from=builder /app/target/release/projet_picsou_api /usr/local/bin/api
 
-# Configuration réseau pour Rocket
+# Copier le script d'initialisation
+COPY entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+# Configuration Rocket
 ENV ROCKET_ADDRESS=0.0.0.0
 ENV ROCKET_PORT=8080
+
+# Variables d'environnement pour Diesel (Railway passera DATABASE_URL automatiquement)
+ENV RUST_BACKTRACE=1
 
 # Expose le port utilisé par ton API
 EXPOSE 8080
 
-# Lancement de l’API directement (pas de wait-for-it.sh)
-CMD ["api"]
+# Utilisation du script comme point d’entrée
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
