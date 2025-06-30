@@ -1,5 +1,5 @@
 # Étape 1 : build de l'application
-FROM rust:nightly as builder
+FROM rustlang/rust:nightly as builder
 
 WORKDIR /app
 
