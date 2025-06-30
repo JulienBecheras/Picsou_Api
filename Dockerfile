@@ -29,6 +29,8 @@ RUN apt-get update && apt-get install -y libpq-dev ca-certificates && rm -rf /va
 
 # Copier le binaire compilé
 COPY --from=builder /app/target/release/projet_picsou_api /usr/local/bin/api
+# Copier le binaire diesel depuis le builder
+COPY --from=builder /usr/local/cargo/bin/diesel /usr/local/bin/diesel
 
 # Copier les migrations
 COPY ./migrations ./migrations
