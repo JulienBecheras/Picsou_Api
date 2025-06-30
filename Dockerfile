@@ -21,6 +21,10 @@ RUN apt-get update && apt-get install -y libpq-dev ca-certificates && rm -rf /va
 # Copier le binaire compilé
 COPY --from=builder /app/target/release/projet_picsou_api /usr/local/bin/api
 
+# Configuration réseau pour Rocket
+ENV ROCKET_ADDRESS=0.0.0.0
+ENV ROCKET_PORT=8080
+
 # Expose le port utilisé par ton API
 EXPOSE 8080
 
